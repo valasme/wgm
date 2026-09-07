@@ -81,18 +81,32 @@ pub fn workspace_complete_onboarding(state: State<'_, AppState>) -> AppResult<Wo
         .workspace
         .update(|workspace| workspace.onboarding.completed_version = Some(version.clone()));
 
-    // If this could not be written, onboarding still finished. Replaying setup on
-    // every launch is a maddening symptom for a small failure, and the Ephemeral Mode
-    // banner already explains why nothing is being saved.
-    if let Err(error) = &result {
-        log::warn!(
-            target: "wgm::workspace",
-            "onboarding completed but could not be persisted ({code})",
-            code = error.code,
-        );
-    }
+    match result {
+        Ok(workspace) => Ok(workspace),
+        Err(error) => {
+            // **Onboarding still finished.** `Store::update` rolls the value back in
+            // memory when a write fails, and returning that rolled-back value would
+            // leave `completedVersion` null — which the app shell reads as "first run"
+            // and redirects straight back to setup, trapping the user in a loop.
+            //
+            // So the completion is adopted in memory regardless. It lasts for this
+            // session only, which is the honest outcome: the Ephemeral Mode and
+            // write-failure banners already say nothing is being saved, and replaying
+            // setup on every launch is a maddening symptom for a small failure.
+            log::warn!(
+                target: "wgm::workspace",
+                "onboarding completed but could not be persisted ({code}); \
+                 keeping it for this session only",
+                code = error.code,
+            );
 
-    Ok(state.workspace.get())
+            let mut workspace = state.workspace.get();
+            workspace.onboarding.completed_version = Some(version);
+            state.workspace.adopt_unpersisted(workspace.clone());
+
+            Ok(workspace)
+        }
+    }
 }
 
 /// *Show setup again*, from Settings → About.

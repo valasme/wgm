@@ -91,6 +91,7 @@ mod tests {
                 "C:\\Users\\alice\\AppData\\Roaming\\io.github.valasme.wgm\\logs",
             ),
             mode: StorageMode::AppData,
+            logging_available: true,
             notes: Vec::new(),
         }
     }

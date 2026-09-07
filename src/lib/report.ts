@@ -25,13 +25,42 @@ function describe(error: unknown): string {
   return String(error);
 }
 
+/** Guards against a *synchronous* re-entry — the log call itself reaching `console.error`. */
+let reporting = false;
+
+/**
+ * Send one line to the Rust log stream.
+ *
+ * **Logging must never become the thing that breaks the app**, so this swallows every
+ * way it can fail, and each guard covers a different one:
+ *
+ * - The `.catch` handles the *asynchronous* failure. Without it a rejected `logError`
+ *   surfaces as an `unhandledrejection`, whose handler reports it, which rejects
+ *   again — an unbounded loop that runs on every call whenever the log command is
+ *   unavailable, which is every call outside Tauri.
+ * - The `reporting` flag handles the *synchronous* one: if the log path ever reaches
+ *   `console.error`, the override below would call straight back into here.
+ */
+function send(write: (message: string) => Promise<void>, line: string): void {
+  if (reporting) {
+    return;
+  }
+
+  reporting = true;
+  try {
+    void write(line).catch(() => {});
+  } finally {
+    reporting = false;
+  }
+}
+
 /** Record an error against the boundary or handler that caught it. */
 export function reportError(source: string, error: unknown): void {
-  void logError(`${source}  ${describe(error)}`);
+  send(logError, `${source}  ${describe(error)}`);
 }
 
 export function reportWarning(source: string, message: string): void {
-  void logWarn(`${source}  ${message}`);
+  send(logWarn, `${source}  ${message}`);
 }
 
 /**

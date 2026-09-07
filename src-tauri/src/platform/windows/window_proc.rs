@@ -34,9 +34,6 @@ use super::{maximize_button_rect, ENABLE_NATIVE_HIT_TEST};
 /// `HTMAXBUTTON`, from `winuser.h`. Restated here next to the code that depends on
 /// what it means.
 const HTMAXBUTTON: isize = 9;
-/// `HTCLIENT` — "the pointer is over ordinary content", the answer everywhere that is
-/// not the maximise button.
-const HTCLIENT: isize = 1;
 
 /// The window proc we replaced, to chain to. wgm has exactly one window, so one slot
 /// is enough; a second window would need a map keyed by `HWND`.
@@ -145,13 +142,16 @@ unsafe fn hit_test(window: HWND, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
     }
 
     if rect.contains(screen_x - window_rect.left, screen_y - window_rect.top) {
-        LRESULT(HTMAXBUTTON)
-    } else {
-        // Not the chained proc: an undecorated window's default answer over the title
-        // bar can be HTCAPTION, and returning that here would fight
-        // `data-tauri-drag-region`.
-        LRESULT(HTCLIENT)
+        return LRESULT(HTMAXBUTTON);
     }
+
+    // Everywhere else must chain. tao answers this message itself for an undecorated
+    // resizable window, and its answer is what supplies HTTOP, HTLEFT, HTBOTTOMRIGHT
+    // and the rest — the resize borders. Returning HTCLIENT here instead would leave
+    // the window unresizable by its edges, which is a far worse trade than the Snap
+    // Layouts hover this override exists to restore. Away from a border tao falls
+    // through to the default proc, which answers HTCLIENT anyway.
+    chain(window, WM_NCHITTEST, wparam, lparam)
 }
 
 /// Clamp a maximised window to the monitor's **work area**, not its full bounds.

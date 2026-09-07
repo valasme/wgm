@@ -111,7 +111,13 @@ pub fn run() {
     let state = AppState::load();
     let settings = state.settings.get();
 
-    let log_dir = state.paths.log_dir.clone();
+    // `None` when the log directory could not be written to. Logging must never be the
+    // thing that stops wgm from launching, so this is a probe rather than an attempt —
+    // see `logging::plugin`.
+    let log_dir = state
+        .paths
+        .logging_available
+        .then(|| state.paths.log_dir.clone());
     let data_dir = state.paths.data_dir.clone();
     let storage_mode = format!("{:?}", state.paths.mode);
     let retention_days = settings.advanced.log_retention_days;
@@ -130,7 +136,7 @@ pub fn run() {
                 let _ = window.set_focus();
             }
         }))
-        .plugin(logging::plugin(&log_dir, file_level))
+        .plugin(logging::plugin(log_dir.as_deref(), file_level))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -149,7 +155,16 @@ pub fn run() {
             specta.mount_events(app);
 
             logging::session_banner(&data_dir, &storage_mode);
-            logging::prune_logs(&log_dir, retention_days);
+
+            match &log_dir {
+                Some(dir) => logging::prune_logs(dir, retention_days),
+                // Worth one line: a bundle from this run will have no log files in it,
+                // and a maintainer should be able to see why rather than guess.
+                None => log::warn!(
+                    target: "wgm::logging",
+                    "no writable log directory; this session is logging to memory only",
+                ),
+            }
 
             if let Some(window) = app.get_webview_window("main") {
                 platform::install_window_hooks(&window);

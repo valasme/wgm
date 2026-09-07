@@ -379,6 +379,7 @@ mod tests {
             data_dir,
             log_dir,
             mode: StorageMode::AppData,
+            logging_available: true,
             notes: Vec::new(),
         };
 

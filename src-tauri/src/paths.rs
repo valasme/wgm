@@ -56,6 +56,13 @@ pub struct DataPaths {
     pub data_dir: PathBuf,
     pub log_dir: PathBuf,
     pub mode: StorageMode,
+    /// Whether a log file can actually be written.
+    ///
+    /// Probed separately from `mode`, and checked before the log plugin is registered:
+    /// the plugin's folder target creates its directory inside a plugin `setup`
+    /// closure, and an error there fails the whole `tauri::Builder`. Logging must
+    /// never be the thing that stops wgm from launching.
+    pub logging_available: bool,
     /// Everything that went wrong on the way to this answer. Surfaced in About.
     pub notes: Vec<PathNote>,
 }
@@ -101,10 +108,16 @@ pub fn resolve() -> DataPaths {
 }
 
 fn finish(data_dir: PathBuf, mode: StorageMode, notes: Vec<PathNote>) -> DataPaths {
+    // The log plugin points at the same resolved directory the documents use, so a
+    // portable install never splits its state across two locations.
+    let log_dir = data_dir.join("logs");
+
     DataPaths {
-        // The log plugin points at the same resolved directory the documents use, so
-        // a portable install never splits its state across two locations.
-        log_dir: data_dir.join("logs"),
+        // Probed rather than inferred from `mode`. The two usually agree, but a
+        // writable data directory whose `logs` subdirectory cannot be created is
+        // exactly the case that would otherwise take the whole app down at boot.
+        logging_available: probe_writable(&log_dir),
+        log_dir,
         data_dir,
         mode,
         notes,
@@ -179,10 +192,41 @@ mod tests {
             data_dir: PathBuf::from("C:\\nowhere"),
             log_dir: PathBuf::from("C:\\nowhere\\logs"),
             mode: StorageMode::Ephemeral,
+            logging_available: false,
             notes: vec![PathNote::AppDataReadOnly],
         };
 
         assert!(paths.is_ephemeral());
+    }
+
+    #[test]
+    fn a_writable_location_reports_logging_as_available() {
+        let dir = tempfile::tempdir().expect("a temp dir");
+
+        let paths = finish(dir.path().to_path_buf(), StorageMode::AppData, Vec::new());
+
+        assert!(paths.logging_available);
+        assert!(
+            paths.log_dir.is_dir(),
+            "the probe creates the directory it tests"
+        );
+    }
+
+    /// The guarantee this field exists for: the log plugin's folder target creates its
+    /// directory inside a plugin `setup` closure, and an error there fails the whole
+    /// `tauri::Builder`. Resolving to a location that cannot hold a log file must
+    /// therefore report it rather than let the app try and die.
+    #[test]
+    fn an_unwritable_location_reports_logging_as_unavailable() {
+        // A path under a *file* can never become a directory, on any platform, which
+        // makes it an unwritable location without needing to manipulate permissions.
+        let dir = tempfile::tempdir().expect("a temp dir");
+        let blocker = dir.path().join("not-a-directory");
+        std::fs::write(&blocker, b"wgm").expect("write the blocker");
+
+        let paths = finish(blocker.join("data"), StorageMode::Ephemeral, Vec::new());
+
+        assert!(!paths.logging_available);
     }
 
     #[test]

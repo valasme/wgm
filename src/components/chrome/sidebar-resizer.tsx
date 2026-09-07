@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { t } from "@/i18n/t";
 import { cn } from "@/lib/cn";
@@ -27,7 +27,10 @@ export function SidebarResizer({
   width: number;
   onWidth: (width: number) => void;
 }) {
-  const dragging = useRef(false);
+  // **State, not a ref.** A ref set from `onPointerDown` causes no re-render, so the
+  // effect below would never run again and the move listeners would never be attached
+  // — the keyboard path would keep working while dragging silently did nothing.
+  const [dragging, setDragging] = useState(false);
 
   const clamp = useCallback(
     (value: number) => Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, value)),
@@ -35,24 +38,29 @@ export function SidebarResizer({
   );
 
   useEffect(() => {
-    if (!dragging.current) {
+    if (!dragging) {
       return;
     }
 
+    // On `window` rather than the separator: the pointer routinely leaves a 10px
+    // target during a drag, and the drag has to survive that.
     const onMove = (event: PointerEvent) => onWidth(clamp(event.clientX));
-    const onUp = () => {
-      dragging.current = false;
-      document.body.style.cursor = "";
-    };
+    const stop = () => setDragging(false);
 
+    document.body.style.cursor = "col-resize";
     window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointerup", stop);
+    // A cancel fires when the OS takes the pointer away — a window switch, a
+    // touch gesture. Without it the cursor stays `col-resize` for the session.
+    window.addEventListener("pointercancel", stop);
 
     return () => {
+      document.body.style.cursor = "";
       window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
     };
-  });
+  }, [dragging, clamp, onWidth]);
 
   return (
     // biome-ignore lint/a11y/useSemanticElements: an <hr> is a thematic break, not a control — it cannot carry a tabindex or the splitter's value attributes
@@ -66,9 +74,10 @@ export function SidebarResizer({
       aria-valuetext={t("chrome.sidebarWidthValue", { width })}
       tabIndex={0}
       onPointerDown={(event) => {
-        dragging.current = true;
-        document.body.style.cursor = "col-resize";
-        event.currentTarget.setPointerCapture?.(event.pointerId);
+        // Not `setPointerCapture`: capture would redirect pointermove to this element,
+        // and the listeners are on `window` so the drag survives leaving the target.
+        event.preventDefault();
+        setDragging(true);
       }}
       onKeyDown={(event) => {
         const step = {
@@ -98,6 +107,7 @@ export function SidebarResizer({
         "after:bg-border after:transition-colors after:duration-100",
         "hover:after:bg-text-muted",
         "focus-visible:after:bg-accent",
+        dragging && "after:bg-accent",
       )}
     />
   );

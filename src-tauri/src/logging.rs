@@ -67,13 +67,42 @@ const MAX_FILE_BYTES: u128 = 8 * 1024 * 1024;
 /// argument.
 pub const MAX_TOTAL_LOG_BYTES: u64 = 64 * 1024 * 1024;
 
-/// Build the plugin. The folder target points at the *same* resolved data directory
-/// the documents use, so a portable install keeps its logs beside itself rather than
-/// splitting state across two locations.
+/// Build the plugin.
+///
+/// `log_dir` is `None` when the directory could not be written to. **That must not stop
+/// wgm from launching**: the plugin's folder target calls `create_dir_all` inside a
+/// plugin `setup` closure, and an error there propagates out of `tauri::Builder::build`
+/// — so a read-only data directory would panic the app before the window exists, in
+/// exactly the situation Ephemeral Mode exists to survive. Without a file the Trace
+/// ring, the webview console pipe and the Recent problems list all still work; only the
+/// file on disk is missing, and Settings → About says so.
 pub fn plugin<R: tauri::Runtime>(
-    log_dir: &Path,
+    log_dir: Option<&Path>,
     level: FileLevel,
 ) -> tauri::plugin::TauriPlugin<R> {
+    let mut targets = vec![
+        // Feeds the Trace ring and forces a flush on error. Registered as a dispatch
+        // target so it sees every record the logger accepts.
+        Target::new(TargetKind::Dispatch(
+            fern::Dispatch::new()
+                .level(log::LevelFilter::Trace)
+                .format(format_record)
+                .chain(fern::Output::call(capture)),
+        )),
+    ];
+
+    #[cfg(debug_assertions)]
+    targets.push(Target::new(TargetKind::Stdout));
+
+    // The folder target points at the *same* resolved data directory the documents
+    // use, so a portable install keeps its logs beside itself.
+    if let Some(dir) = log_dir {
+        targets.push(Target::new(TargetKind::Folder {
+            path: dir.to_path_buf(),
+            file_name: Some("wgm".to_owned()),
+        }));
+    }
+
     LogBuilder::new()
         .level(log::LevelFilter::from(level))
         // The webview's console.warn / console.error arrive through the plugin's own
@@ -83,22 +112,7 @@ pub fn plugin<R: tauri::Runtime>(
         .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
         .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
         .format(format_record)
-        .targets([
-            Target::new(TargetKind::Folder {
-                path: log_dir.to_path_buf(),
-                file_name: Some("wgm".to_owned()),
-            }),
-            #[cfg(debug_assertions)]
-            Target::new(TargetKind::Stdout),
-            // Feeds the Trace ring and forces a flush on error. Registered as a
-            // dispatch target so it sees every record the logger accepts.
-            Target::new(TargetKind::Dispatch(
-                fern::Dispatch::new()
-                    .level(log::LevelFilter::Trace)
-                    .format(format_record)
-                    .chain(fern::Output::call(capture)),
-            )),
-        ])
+        .targets(targets)
         .build()
 }
 

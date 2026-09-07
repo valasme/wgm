@@ -154,6 +154,7 @@ mod tests {
             data_dir: PathBuf::from("C:\\Users\\alice\\AppData\\Roaming\\io.github.valasme.wgm"),
             log_dir: PathBuf::from("C:\\Users\\alice\\logs"),
             mode,
+            logging_available: true,
             notes: Vec::new(),
         }
     }

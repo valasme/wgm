@@ -174,6 +174,16 @@ impl<D: VersionedDocument> Store<D> {
         self.consecutive_write_failures.store(0, Ordering::Relaxed);
     }
 
+    /// Adopt a value that could **not** be written, for this session only.
+    ///
+    /// The write-failure count is deliberately left alone: the write really did fail,
+    /// the banner should say so, and the only thing being overridden is the rollback.
+    /// Used where losing the change is worse than keeping an unpersisted one — finishing
+    /// onboarding, where a rollback would send the user straight back into setup.
+    pub fn adopt_unpersisted(&self, value: D) {
+        *self.write() = value;
+    }
+
     /// Write the current value to disk without changing it. Used after a repair.
     fn persist(&self, value: &D) -> AppResult<()> {
         if self.is_ephemeral() {
@@ -410,6 +420,33 @@ mod tests {
                 .contains("count"),
             "the repaired document must be written back"
         );
+    }
+
+    /// The onboarding case: losing the change would send the user straight back into
+    /// setup, so the value is kept for the session even though it was not written — and
+    /// the failure count is *not* cleared, because the write really did fail and the
+    /// banner should still say so.
+    #[test]
+    fn an_unpersisted_value_is_adopted_without_hiding_the_write_failure() {
+        let dir = temp();
+        let store = Store::<Fake>::open(dir.path(), false);
+
+        store.consecutive_write_failures.store(2, Ordering::Relaxed);
+
+        let mut value = store.get();
+        value.count = 77;
+        store.adopt_unpersisted(value);
+
+        assert_eq!(store.get().count, 77);
+        assert_eq!(
+            store.status().consecutive_write_failures,
+            2,
+            "adopting an unpersisted value must not clear the failure count"
+        );
+
+        // And it really is unpersisted: the file still holds the previous value.
+        let reopened = Store::<Fake>::open(dir.path(), false);
+        assert_eq!(reopened.get().count, Fake::default().count);
     }
 
     #[test]
