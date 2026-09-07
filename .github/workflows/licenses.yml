@@ -8,6 +8,7 @@ on:
       - "pnpm-lock.yaml"
       - "src-tauri/Cargo.toml"
       - "src-tauri/Cargo.lock"
+      - "src-tauri/about.toml"
       - "licenses/**"
       - ".github/workflows/licenses.yml"
   workflow_dispatch:
@@ -34,8 +35,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # `--features cli` is not optional: without it cargo-about builds as a library,
+      # installs no binary, and still exits 0. That is what let a licence list with no
+      # crates in it reach main.
       - name: Install cargo-about
-        run: cargo install cargo-about --locked
+        run: cargo install cargo-about --locked --features cli
 
       - name: Generate
         run: node scripts/generate-third-party-licenses.mjs
