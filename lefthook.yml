@@ -11,6 +11,12 @@ pre-commit:
       run: pnpm exec biome check --write --no-errors-on-unmatched {staged_files}
       stage_fixed: true
 
+    # The only place this can run. A workflow file that does not parse is not a
+    # failing check — GitHub cannot read it, so the check never exists to fail.
+    - name: workflows
+      glob: ".github/workflows/*.{yml,yaml}"
+      run: node scripts/check-workflows.mjs {staged_files}
+
     - name: rustfmt
       glob: "src-tauri/**/*.rs"
       run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check

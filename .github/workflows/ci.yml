@@ -119,5 +119,7 @@ jobs:
       # the check that catches a redaction regression no reviewer would spot: it
       # generates a real bundle on a real machine with a real username and asserts the
       # username appears in none of it.
+      # Quoted: a plain scalar ending in `:` is read as the start of a nested mapping,
+      # and an unparseable workflow file does not fail CI — it stops CI existing.
       - name: Assert no bundle leaks the username
-        run: cargo test --manifest-path src-tauri/Cargo.toml --release --lib diagnostics::
+        run: "cargo test --manifest-path src-tauri/Cargo.toml --release --lib diagnostics::"
