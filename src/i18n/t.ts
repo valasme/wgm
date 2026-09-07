@@ -63,7 +63,7 @@ export function t<Key extends MessageKey>(key: Key, ...args: ArgsFor<Key>): stri
  */
 export function tryTranslate(
   key: string,
-  params?: Record<string, string | number>,
+  params?: Record<string, string | number | undefined>,
 ): string | undefined {
   if (!(key in en)) {
     return undefined;

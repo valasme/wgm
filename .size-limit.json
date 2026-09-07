@@ -2,14 +2,14 @@
   {
     "name": "app bundle (js)",
     "path": "dist/assets/*.js",
-    "limit": "10 mb",
+    "limit": "637 kB",
     "gzip": false,
     "brotli": false
   },
   {
     "name": "app bundle (css)",
     "path": "dist/assets/*.css",
-    "limit": "10 mb",
+    "limit": "30 kB",
     "gzip": false,
     "brotli": false
   }
