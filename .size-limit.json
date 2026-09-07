@@ -1,0 +1,16 @@
+[
+  {
+    "name": "app bundle (js)",
+    "path": "dist/assets/*.js",
+    "limit": "10 mb",
+    "gzip": false,
+    "brotli": false
+  },
+  {
+    "name": "app bundle (css)",
+    "path": "dist/assets/*.css",
+    "limit": "10 mb",
+    "gzip": false,
+    "brotli": false
+  }
+]

@@ -1,0 +1,9 @@
+# Pinned so `clippy -D warnings` cannot start failing on an unrelated day because the
+# CI runner picked up a new Rust release carrying a new lint. Bumping this is a commit,
+# with the clippy fixes in the same commit.
+#
+# Deliberately no `targets` or `profile` key: naming either makes rustup re-sync the
+# whole toolchain rather than reuse an identical one already on the machine.
+[toolchain]
+channel = "1.98.1"
+components = ["rustfmt", "clippy"]

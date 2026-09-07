@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Everything that does not need a Windows runner runs on Linux, because a Windows
+  # runner costs twice as much per minute and this job is most of the feedback.
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint and format
+        run: pnpm check:ci
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # Biome has no react-compiler rule, so a component that silently bails out of
+      # compilation is invisible without this.
+      - name: React Compiler healthcheck
+        run: pnpm compiler-healthcheck
+
+      # axe in jsdom cannot check contrast — it computes no layout and the rule
+      # no-ops. This is the only thing that verifies the palette.
+      - name: Contrast gate
+        run: pnpm check-contrast
+
+      - name: Build
+        run: pnpm build
+
+      # Wired but not enforcing a real number until Phase 4 of docs/PLAN.md measures
+      # the shell. Left running so the wiring cannot rot in the meantime.
+      - name: Bundle size
+        run: pnpm size
+
+  rust:
+    name: Rust
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # rust-toolchain.toml pins the version; this action honours it.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Format
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+
+      - name: Clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+  build:
+    name: Build (windows)
+    runs-on: windows-latest
+    needs: [frontend, rust]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the app
+        run: pnpm tauri build
+
+      # A Diagnostics Bundle is designed to be attached to a public issue. This is the
+      # check that catches a redaction regression no reviewer would spot.
+      - name: Assert no bundle leaks the username
+        run: cargo test --manifest-path src-tauri/Cargo.toml --release redaction -- --include-ignored

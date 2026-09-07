@@ -1,0 +1,29 @@
+# Pre-commit runs only on staged files, so it stays fast enough to leave enabled.
+# CI re-runs everything over the whole tree; this hook exists to catch the obvious.
+pre-commit:
+  parallel: true
+  jobs:
+    - name: biome
+      glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
+      exclude:
+        - "src/routeTree.gen.ts"
+        - "src/ipc/bindings.ts"
+      run: pnpm exec biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+
+    - name: rustfmt
+      glob: "src-tauri/**/*.rs"
+      run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+
+    - name: clippy
+      glob: "src-tauri/**/*.{rs,toml}"
+      run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: typecheck
+      run: pnpm typecheck
+
+    - name: test
+      run: pnpm test

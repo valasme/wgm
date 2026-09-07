@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test and coverage output
+coverage
+.vitest
+
+# Lefthook's generated hook scripts
+.lefthook
+.lefthook-local
+
+# A portable-mode data directory sitting in a dev checkout
+/data/
+wgm.portable
+
+# TypeScript incremental build info
+*.tsbuildinfo
