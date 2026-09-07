@@ -4,11 +4,13 @@ import { Sidebar } from "@/components/chrome/sidebar";
 import { TitleBar } from "@/components/chrome/title-bar";
 import { CommandPalette } from "@/components/command-palette";
 import { RouteError } from "@/components/errors/route-error";
+import { RouteAnnouncer } from "@/components/route-announcer";
 import { ShortcutSheet } from "@/components/shortcut-sheet";
 import { StatusBanners } from "@/components/status-banners";
 import { t } from "@/i18n/t";
 import { commands } from "@/ipc";
 import { type NAV_SHORTCUT_TARGETS, useShortcuts } from "@/lib/shortcuts";
+import { useZoom } from "@/lib/zoom";
 import { isRail, RAIL_BREAKPOINT, useWorkspaceStore } from "@/stores/workspace-store";
 
 export const Route = createFileRoute("/_app")({
@@ -53,6 +55,10 @@ function AppShell() {
     return () => window.removeEventListener("resize", measure);
   }, [setRailForced]);
 
+  // Ctrl +/-/0. Off by default in Tauri, and the cheapest low-vision accommodation
+  // available in a window with no browser chrome to offer it.
+  useZoom();
+
   useShortcuts({
     onPalette: useCallback(() => setPaletteOpen((open) => !open), []),
     onToggleSidebar: useCallback(
@@ -89,6 +95,8 @@ function AppShell() {
           <Outlet />
         </main>
       </div>
+
+      <RouteAnnouncer />
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <ShortcutSheet open={shortcutsOpen} onOpenChange={setShortcutsOpen} />

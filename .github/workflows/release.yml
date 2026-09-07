@@ -1,0 +1,111 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # Merging to main opens (or updates) a release PR with a generated CHANGELOG.
+  # Merging *that* tags, and everything below runs.
+  release-please:
+    name: Release PR
+    runs-on: ubuntu-latest
+    outputs:
+      released: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build:
+    name: Build and publish
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # NSIS only. Per-user and no administrator rights, which matters more than usual
+      # for an app Windows will already be warning about.
+      - name: Build
+        run: pnpm tauri build
+
+      # `targets: ["nsis"]` produces no zip, so the portable artifact is assembled
+      # explicitly — with the wgm.portable marker that switches the data directory to
+      # ./data beside the executable.
+      - name: Assemble the portable zip
+        shell: pwsh
+        run: |
+          $version = "${{ needs.release-please.outputs.version }}"
+          $staging = "portable/wgm"
+          New-Item -ItemType Directory -Force -Path $staging | Out-Null
+          Copy-Item "src-tauri/target/release/wgm.exe" $staging
+          Copy-Item "LICENSE", "README.md", "THIRD-PARTY-LICENSES.md" $staging
+          New-Item -ItemType File -Path "$staging/wgm.portable" | Out-Null
+          Compress-Archive -Path "$staging/*" -DestinationPath "artifacts/wgm_${version}_x64-portable.zip" -Force
+
+      # Published as a release asset rather than bundled into the installer: users get
+      # a small download, and a maintainer can symbolise a backtrace from any release
+      # offline. The release profile keeps `debug = 1` precisely for this.
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          $version = "${{ needs.release-please.outputs.version }}"
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Copy-Item "src-tauri/target/release/bundle/nsis/*.exe" artifacts
+          Copy-Item "src-tauri/target/release/wgm.pdb" "artifacts/wgm_${version}.pdb"
+
+      # The signing step exists and no-ops without a key. wgm is unsigned today; the
+      # README explains the SmartScreen warning and points at the checksums below.
+      - name: Sign
+        shell: pwsh
+        env:
+          SIGNING_CERTIFICATE: ${{ secrets.SIGNING_CERTIFICATE }}
+        run: |
+          if ([string]::IsNullOrEmpty($env:SIGNING_CERTIFICATE)) {
+            Write-Host "No signing certificate configured; artifacts are unsigned."
+          } else {
+            Write-Host "Signing is configured but not yet implemented."
+            exit 1
+          }
+
+      # The whole integrity story until wgm is signed, which is why every artifact gets
+      # one and the README documents how to check it.
+      - name: Checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem artifacts -File |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } |
+            Set-Content artifacts/SHA256SUMS.txt -Encoding ascii
+
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ needs.release-please.outputs.tag }}" artifacts/* --clobber

@@ -1,0 +1,55 @@
+name: Licences
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "src-tauri/Cargo.toml"
+      - "src-tauri/Cargo.lock"
+      - "licenses/**"
+      - ".github/workflows/licenses.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  regenerate:
+    name: Regenerate THIRD-PARTY-LICENSES.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install cargo-about
+        run: cargo install cargo-about --locked
+
+      - name: Generate
+        run: node scripts/generate-third-party-licenses.mjs
+
+      # A pull request rather than a direct push: the file is part of what wgm
+      # distributes, and a licence list that changed without anyone looking is exactly
+      # the kind of thing that should be looked at.
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "docs: regenerate THIRD-PARTY-LICENSES.md"
+          title: "docs: regenerate THIRD-PARTY-LICENSES.md"
+          body: |
+            Dependency licences changed. Regenerated from `cargo about` and
+            `pnpm licenses`, with the OFL text for the bundled fonts folded in
+            from `licenses/`.
+          branch: chore/third-party-licenses
+          add-paths: THIRD-PARTY-LICENSES.md

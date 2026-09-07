@@ -19,7 +19,8 @@
     "compiler-healthcheck": "react-compiler-healthcheck --src \"src/**/*.{ts,tsx}\"",
     "size": "size-limit",
     "prepare": "lefthook install",
-    "subset-wordmark": "tsx scripts/subset-wordmark.ts"
+    "subset-wordmark": "tsx scripts/subset-wordmark.ts",
+    "licenses": "node scripts/generate-third-party-licenses.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

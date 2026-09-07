@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { open as openFile, save } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
-
+import { SectionBoundary } from "@/components/errors/section-error";
 import { BundlePreviewDialog } from "@/components/settings/bundle-preview";
 import { RecentProblems } from "@/components/settings/recent-problems";
 import { SettingRow } from "@/components/settings/setting-row";
@@ -197,10 +197,16 @@ function AdvancedPage() {
         <h3 className="mb-1 text-sm font-medium text-text">
           {t("settings.advanced.recentProblems")}
         </h3>
-        <RecentProblems />
+        {/* Its own boundary: reading the ring buffer can fail without that being a
+            reason to lose the rest of Settings. */}
+        <SectionBoundary name="recent-problems">
+          <RecentProblems />
+        </SectionBoundary>
       </div>
 
-      <BundlePreviewDialog open={bundleOpen} onOpenChange={setBundleOpen} />
+      <SectionBoundary name="bundle-preview">
+        <BundlePreviewDialog open={bundleOpen} onOpenChange={setBundleOpen} />
+      </SectionBoundary>
 
       {/* The one exception to instant apply, and the only reason
           confirm-before-destructive-actions is rendered at all. */}

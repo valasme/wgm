@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest something wgm should do.
+labels: ["type: feature", "status: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        wgm is opinionated on purpose, and a few things are settled rather than open:
+
+        - **No telemetry, no analytics, no crash reporting, no auto-update.** See
+          [ADR-0003](../blob/main/docs/adr/0003-zero-network-policy.md).
+        - **Windows only.** wgm drives a Windows-only tool.
+        - **Eight fixed accents, not a colour picker** — a freeform hue can fail WCAG AA
+          and there would be no way to stop it.
+
+        Everything else is genuinely open.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: >-
+        The problem rather than the solution. What were you doing when you wanted this,
+        and what did you do instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like wgm to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What else have you considered?
+      description: Including doing nothing, or doing it outside wgm.

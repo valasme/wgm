@@ -1,3 +1,4 @@
+import { getCurrentWebview, type Webview } from "@tauri-apps/api/webview";
 import { getCurrentWindow, type Window } from "@tauri-apps/api/window";
 
 /**
@@ -8,7 +9,7 @@ import { getCurrentWindow, type Window } from "@tauri-apps/api/window";
  * testable in both, and the window operations are simply no-ops.
  */
 export function getWindow(): Window | null {
-  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
+  if (!inTauri()) {
     return null;
   }
 
@@ -19,7 +20,25 @@ export function getWindow(): Window | null {
   }
 }
 
+/**
+ * The current webview, or `null` outside Tauri.
+ *
+ * Distinct from the window: zoom is a property of the webview, not of the frame around
+ * it, and `Window` has no `setZoom`.
+ */
+export function getWebview(): Webview | null {
+  if (!inTauri()) {
+    return null;
+  }
+
+  try {
+    return getCurrentWebview();
+  } catch {
+    return null;
+  }
+}
+
 /** Are we running inside the Tauri shell, rather than a bare browser or jsdom? */
 export function inTauri(): boolean {
-  return getWindow() !== null;
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }

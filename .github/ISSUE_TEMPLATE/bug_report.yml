@@ -1,0 +1,84 @@
+name: Bug report
+description: Something in wgm doesn't work.
+labels: ["type: bug", "status: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. The single most useful thing you can attach is the
+        **summary** — Settings → About → *Copy summary* puts your wgm version, commit,
+        Windows build, WebView2 version and session id on the clipboard in one click.
+
+        Please **do not** attach a Diagnostics Bundle unless a maintainer asks for one.
+        Attachments on a GitHub issue are public and permanent — the link outlives the
+        issue — and the summary is enough to start almost every investigation.
+
+        Security problems go through
+        [private advisories](https://github.com/valasme/wgm/security/advisories/new),
+        not here.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Copy summary
+      description: Settings → About → Copy summary, pasted here.
+      render: markdown
+      placeholder: |
+        ### wgm diagnostics
+        | | |
+        | --- | --- |
+        | wgm | 0.1.0 |
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Settings → Appearance
+        2. Change the colour scheme to Darker
+        3. …
+    validations:
+      required: true
+
+  - type: input
+    id: correlation-id
+    attributes:
+      label: Reference code
+      description: >-
+        If wgm showed you a short code like `a3f9c1`, put it here. It links your report
+        to the exact log lines that produced it.
+      placeholder: a3f9c1
+
+  - type: dropdown
+    id: install-kind
+    attributes:
+      label: How did you install wgm?
+      options:
+        - Installer (wgm_x.y.z_x64-setup.exe)
+        - Portable zip
+        - Built from source
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I'm on the latest release, or I've said which version I'm on above.
+          required: true
+        - label: >-
+            I've checked that the summary above contains no path or name I'd rather not
+            publish. (wgm redacts your username and profile path, but you are the last
+            line of defence.)
+          required: true

@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/valasme/wgm/security/advisories/new
+    about: >-
+      Report privately. Never in a public issue — this includes anything that leaks a
+      username, a path or a token out of a Diagnostics Bundle.
+
+  - name: Question or idea
+    url: https://github.com/valasme/wgm/discussions
+    about: For anything that isn't yet a bug or a concrete proposal.
+
+  - name: winget itself
+    url: https://github.com/microsoft/winget-cli/issues
+    about: >-
+      wgm drives winget but is not winget. Problems with the CLI, its sources or its
+      manifests belong with Microsoft.

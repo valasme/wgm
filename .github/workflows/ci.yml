@@ -111,7 +111,9 @@ jobs:
       - name: Build the app
         run: pnpm tauri build
 
-      # A Diagnostics Bundle is designed to be attached to a public issue. This is the
-      # check that catches a redaction regression no reviewer would spot.
+      # A Diagnostics Bundle is designed to be attached to a public issue, and this is
+      # the check that catches a redaction regression no reviewer would spot: it
+      # generates a real bundle on a real machine with a real username and asserts the
+      # username appears in none of it.
       - name: Assert no bundle leaks the username
-        run: cargo test --manifest-path src-tauri/Cargo.toml --release redaction -- --include-ignored
+        run: cargo test --manifest-path src-tauri/Cargo.toml --release --lib diagnostics::
