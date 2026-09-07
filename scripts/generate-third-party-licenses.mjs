@@ -20,27 +20,34 @@ import process from "node:process";
 
 const OUTPUT = "THIRD-PARTY-LICENSES.md";
 
+/**
+ * A source that cannot be read is a fatal error, not a footnote.
+ *
+ * This used to return null and let the caller write "_… was unavailable_" into the
+ * file. That is how wgm shipped a licence list with no crates in it at all: the
+ * workflow's `cargo install cargo-about` was a no-op without `--features cli`, every
+ * run silently took the fallback, and the note read as a deliberate choice rather
+ * than a broken tool. Failing here means a broken generator breaks the build.
+ */
 function run(command, args, options = {}) {
   try {
     return execFileSync(command, args, {
       encoding: "utf8",
       shell: process.platform === "win32",
+      // `cargo about --format json` embeds the full text of every licence it found,
+      // which is a few megabytes. The default 1 MB buffer truncates it into ENOBUFS.
+      maxBuffer: 64 * 1024 * 1024,
       ...options,
     });
   } catch (error) {
-    process.stderr.write(`  ${command} failed: ${error.message}\n`);
-    return null;
+    process.stderr.write(`\n  ${command} ${args.join(" ")} failed:\n  ${error.message}\n`);
+    process.exit(1);
   }
 }
 
 /** npm packages, grouped by licence, from pnpm's own resolver. */
 function npmSection() {
   const raw = run("pnpm", ["licenses", "list", "--json", "--prod"]);
-
-  if (!raw) {
-    return "_`pnpm licenses` was unavailable when this file was generated._\n";
-  }
-
   const byLicense = JSON.parse(raw);
   const lines = [];
 
@@ -58,7 +65,10 @@ function npmSection() {
   return lines.join("\n");
 }
 
-/** Rust crates, via cargo-about. Falls back to a plain list from `cargo metadata`. */
+/**
+ * Rust crates, via cargo-about, configured by `src-tauri/about.toml` — which is also
+ * what narrows this to the crates that reach a Windows binary.
+ */
 function cargoSection() {
   const raw = run("cargo", [
     "about",
@@ -69,17 +79,29 @@ function cargoSection() {
     "json",
   ]);
 
-  if (!raw) {
-    return "_`cargo about` was unavailable when this file was generated._\n";
-  }
-
   const report = JSON.parse(raw);
-  const lines = [];
+
+  // `licenses` is one entry per distinct licence *text*, so MIT alone arrives as 124
+  // of them. Group by licence id to get the same shape as the npm section: one
+  // heading per licence, the crates under it.
+  const byLicense = new Map();
 
   for (const license of report.licenses ?? []) {
-    lines.push(`### ${license.name ?? license.id}\n`);
+    const name = license.name ?? license.id;
+    const crates = byLicense.get(name) ?? new Set();
     for (const used of license.used_by ?? []) {
-      lines.push(`- \`${used.crate.name}\` ${used.crate.version}`);
+      crates.add(`${used.crate.name} ${used.crate.version}`);
+    }
+    byLicense.set(name, crates);
+  }
+
+  const lines = [];
+
+  for (const [name, crates] of [...byLicense].sort((a, b) => a[0].localeCompare(b[0]))) {
+    lines.push(`### ${name}\n`);
+    for (const crate of [...crates].sort()) {
+      const at = crate.lastIndexOf(" ");
+      lines.push(`- \`${crate.slice(0, at)}\` ${crate.slice(at + 1)}`);
     }
     lines.push("");
   }
