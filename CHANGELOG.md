@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.1](https://github.com/valasme/wgm/compare/v0.2.0...v0.2.1) (2026-09-07)
+
+
+### Fixes
+
+* **release:** repair the release pipeline and unbreak main ([#14](https://github.com/valasme/wgm/issues/14)) ([be25ccf](https://github.com/valasme/wgm/commit/be25ccff5d623bd29028e834fd57138a4f02fc4e))
+
+
+### Documentation
+
+* regenerate THIRD-PARTY-LICENSES.md ([#13](https://github.com/valasme/wgm/issues/13)) ([d31a782](https://github.com/valasme/wgm/commit/d31a7824fb00031e4fa159cad06e715461a8e9d3))
+
 ## [0.2.0](https://github.com/valasme/wgm/compare/v0.1.0...v0.2.0) (2026-09-07)
 
 
