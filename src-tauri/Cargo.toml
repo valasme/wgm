@@ -50,6 +50,11 @@ zip = { version = "2", default-features = false, features = ["deflate"] }
 tempfile = "3"
 
 [target.'cfg(windows)'.dependencies]
+# **Must match the version tauri depends on.** `window.hwnd()` returns tauri's `HWND`,
+# so `src/platform/windows/` has to be compiled against the same crate; a mismatch is a
+# hard type error that reads absurdly — "expected `HWND`, found `HWND`" — with a note
+# about multiple versions of `windows` in the dependency graph. Bump this only when
+# tauri does, in the same commit. Dependabot is told to leave it alone.
 windows = { version = "0.61", features = [
   "Win32_Foundation",
   "Win32_Graphics_Gdi",

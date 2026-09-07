@@ -46,6 +46,17 @@ updates:
           - "specta"
           - "specta-*"
           - "tauri-specta"
+    ignore:
+      # **The `windows` version is dictated by tauri, not by us.** `window.hwnd()`
+      # hands back tauri's `HWND`, so `src/platform/windows/` has to be compiled
+      # against the same crate version; a mismatch is a hard type error —
+      # "expected `HWND`, found `HWND`", with a note about multiple versions of
+      # `windows` in the dependency graph.
+      #
+      # Ignored rather than grouped with tauri, because a group PR still bumps it on
+      # its own when tauri has not moved. Bump it by hand when tauri does, in the
+      # same commit.
+      - dependency-name: "windows"
 
   - package-ecosystem: github-actions
     directory: "/"
