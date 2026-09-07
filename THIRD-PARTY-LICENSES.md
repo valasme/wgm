@@ -242,7 +242,6 @@ _`cargo about` was unavailable when this file was generated._
 
 ### MIT OR Apache-2.0
 
-- `@tauri-apps/plugin-autostart` 2.5.1
 - `@tauri-apps/plugin-clipboard-manager` 2.3.3
 - `@tauri-apps/plugin-dialog` 2.7.3
 - `@tauri-apps/plugin-log` 2.9.1
