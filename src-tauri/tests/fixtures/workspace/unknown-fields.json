@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "window": {
+    "width": 1200,
+    "height": 760,
+    "x": null,
+    "y": null,
+    "maximized": false
+  },
+  "sidebar": {
+    "width": 220,
+    "collapsed": false,
+    "fromANewerBuild": "pinned"
+  },
+  "onboarding": {
+    "completedVersion": null
+  }
+}

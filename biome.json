@@ -12,6 +12,7 @@
       "!src-tauri/target",
       "!src-tauri/gen",
       "!pnpm-lock.yaml",
+      "!src-tauri/tests/fixtures",
       "!src/routeTree.gen.ts",
       "!src/ipc/bindings.ts"
     ]
@@ -62,6 +63,23 @@
       "enabled": true
     }
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/theme/tokens.css"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noImportantStyles": "off"
+          }
+        }
+      }
+    }
+  ],
   "assist": {
     "enabled": true,
     "actions": {

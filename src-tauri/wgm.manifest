@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  The application manifest, used for **every** binary this crate produces — the app
+  itself and every `cargo test` harness.
+
+  tao, wry and rfd statically import SetWindowSubclass, DefSubclassProc,
+  RemoveWindowSubclass and TaskDialogIndirect, all of which are exported only by
+  comctl32 version 6. A process gets version 6 from WinSxS by asking for it here;
+  without a manifest it loads 5.82 from System32 and fails to start with
+  STATUS_ENTRYPOINT_NOT_FOUND — before main runs, and with no message that points
+  at the cause.
+
+  tauri-build ships an identical manifest by default. wgm turns that off
+  (`new_without_app_manifest` in build.rs) and links this one through the linker
+  instead, because a resource-embedded manifest reaches only the app binary and
+  leaves the test binaries unable to load.
+-->
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+        type="win32"
+        name="Microsoft.Windows.Common-Controls"
+        version="6.0.0.0"
+        processorArchitecture="*"
+        publicKeyToken="6595b64144ccf1df"
+        language="*"
+      />
+    </dependentAssembly>
+  </dependency>
+</assembly>

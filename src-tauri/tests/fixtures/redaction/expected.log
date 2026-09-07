@@ -1,0 +1,9 @@
+2026-09-07T14:22:31.123+02:00  INFO   [wgm]  ---- session 4f2a91c0b7d3 · wgm 0.1.0 · commit 9c1e2a4b8d70 · windows x86_64 · data="%USERPROFILE%\wgm\data" (PORTABLE) ----
+2026-09-07T14:22:31.480+02:00  WARN   [wgm::document]  settings: ignoring unknown fields ["appearance.tint"]
+2026-09-07T14:22:32.005+02:00  ERROR  [wgm::document]  a3f9c1  DOCUMENT_WRITE_FAILED  path="%USERPROFILE%\wgm\data\settings.json" msg="The process cannot access the file because it is being used by another process. (os error 32)"
+2026-09-07T14:22:32.140+02:00  DEBUG  [webview]  export target chosen: C:/Users/%USERNAME%/Desktop/wgm-diagnostics.zip
+2026-09-07T14:22:32.201+02:00  DEBUG  [webview]  fallback profile scanned: D:\Users\%USERNAME%\OneDrive
+2026-09-07T14:22:32.260+02:00  INFO   [wgm]  machine %COMPUTERNAME% reported display scaling 150%
+2026-09-07T14:22:32.310+02:00  DEBUG  [wgm::document]  settings dump: {"path":"C:\\Users\\%USERNAME%\\AppData\\Roaming\\io.github.valasme.wgm"}
+2026-09-07T14:22:32.402+02:00  WARN   [webview]  request to https://example.invalid used header Authorization: Bearer %TOKEN%
+2026-09-07T14:22:32.500+02:00  INFO   [wgm]  signed in as %USERNAME%

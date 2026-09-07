@@ -1,0 +1,9 @@
+2026-09-07T14:22:31.123+02:00  INFO   [wgm]  ---- session 4f2a91c0b7d3 · wgm 0.1.0 · commit 9c1e2a4b8d70 · windows x86_64 · data="\\fileserver\home$\dvalasellis\wgm\data" (PORTABLE) ----
+2026-09-07T14:22:31.480+02:00  WARN   [wgm::document]  settings: ignoring unknown fields ["appearance.tint"]
+2026-09-07T14:22:32.005+02:00  ERROR  [wgm::document]  a3f9c1  DOCUMENT_WRITE_FAILED  path="\\fileserver\home$\dvalasellis\wgm\data\settings.json" msg="The process cannot access the file because it is being used by another process. (os error 32)"
+2026-09-07T14:22:32.140+02:00  DEBUG  [webview]  export target chosen: C:/Users/dvalasellis/Desktop/wgm-diagnostics.zip
+2026-09-07T14:22:32.201+02:00  DEBUG  [webview]  fallback profile scanned: D:\Users\dvalasellis\OneDrive
+2026-09-07T14:22:32.260+02:00  INFO   [wgm]  machine DEV-BOX-07 reported display scaling 150%
+2026-09-07T14:22:32.310+02:00  DEBUG  [wgm::document]  settings dump: {"path":"C:\\Users\\dvalasellis\\AppData\\Roaming\\io.github.valasme.wgm"}
+2026-09-07T14:22:32.402+02:00  WARN   [webview]  request to https://example.invalid used header Authorization: Bearer ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8
+2026-09-07T14:22:32.500+02:00  INFO   [wgm]  signed in as dvalasellis

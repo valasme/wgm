@@ -1,6 +1,8 @@
 # Logs
 logs
 *.log
+# ...except the redaction golden files, which are checked-in log fixtures.
+!src-tauri/tests/fixtures/redaction/*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

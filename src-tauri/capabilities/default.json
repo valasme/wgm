@@ -1,7 +1,39 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window",
+  "description": "Everything the webview is allowed to reach. This list is a security surface, so it is enumerated explicitly rather than pulled in as plugin defaults — `dialog:default` and `opener:default` grant more than wgm uses. The `fs` plugin is never enabled: the webview has no filesystem access at all, and import/export obtains a path here that Rust then reads (ADR-0001).",
   "windows": ["main"],
-  "permissions": ["core:default", "opener:default"]
+  "permissions": [
+    "core:default",
+
+    "core:window:allow-start-dragging",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-is-maximized",
+    "core:window:allow-close",
+    "core:window:allow-show",
+    "core:window:allow-set-theme",
+    "core:window:allow-set-title",
+    "core:window:allow-inner-size",
+    "core:window:allow-scale-factor",
+
+    "dialog:allow-open",
+    "dialog:allow-save",
+
+    "opener:allow-open-path",
+    "opener:allow-open-url",
+
+    "clipboard-manager:allow-write-text",
+
+    "os:allow-platform",
+    "os:allow-version",
+    "os:allow-locale",
+    "os:allow-arch",
+
+    "process:allow-restart",
+
+    "autostart:default",
+
+    "log:default"
+  ]
 }

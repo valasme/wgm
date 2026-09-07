@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "appearance": {
+    "colorScheme": "darker",
+    "accent": "emerald",
+    "density": "compact",
+    "reduceMotion": "on"
+  },
+  "general": {
+    "launchOnStartup": true,
+    "startMinimized": false,
+    "restoreWindowPosition": true,
+    "confirmDestructiveActions": false
+  },
+  "advanced": {
+    "logLevel": "debug",
+    "logRetentionDays": 14
+  },
+  "privacy": {
+    "releaseCheckEnabled": false
+  }
+}

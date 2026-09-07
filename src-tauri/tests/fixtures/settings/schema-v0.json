@@ -1,0 +1,8 @@
+{
+  "appearance": {
+    "accent": "cyan"
+  },
+  "advanced": {
+    "logLevel": "warn"
+  }
+}
