@@ -1,22 +1,19 @@
 @import "tailwindcss";
 @import "../theme/tokens.css";
 
-/*
- * Tailwind's theme. Colour is mapped in from src/theme/tokens.css rather than
- * declared here, so `scripts/check-contrast.ts` has exactly one file to parse.
- * Everything else in this block is a namespace Tailwind owns.
- */
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-}
-
 @theme {
+  /* Tailwind ships a full default palette. Every one of those colours is a colour
+   * check-contrast.ts has never seen, so none of them are available.
+   *
+   * **This clear must come before the palette below.** `--color-*: initial` empties
+   * the namespace at the point it appears, so putting it after the semantic colours
+   * deletes them too — and every `bg-surface`, `text-text` and `border-border` in the
+   * app silently stops being generated, with no build error to say so. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+
   /* Whole-pixel sizes: Windows at 100% scaling renders fractional sizes softly. */
   --text-xs: 11px;
   --text-xs--line-height: 16px;
@@ -44,13 +41,22 @@
   --radius-lg: 12px;
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
 
-  /* Tailwind ships a full default palette. Every one of those colours is a colour
-   * check-contrast.ts has never seen, so none of them are available. */
-  --color-*: initial;
-  --color-transparent: transparent;
-  --color-current: currentColor;
-  --color-inherit: inherit;
+/*
+ * The palette. Mapped in from src/theme/tokens.css rather than declared here, so
+ * `scripts/check-contrast.ts` has exactly one file to parse — and `inline` so the
+ * utilities resolve to `var(--surface)` at use time, which is what lets a
+ * `data-theme` change restyle the app without regenerating any CSS.
+ */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 }
 
 /* ------------------------------------------------------------------ Fonts --- */

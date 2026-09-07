@@ -27,6 +27,7 @@ runner cost: the frontend job on `ubuntu-latest`, anything needing Rust or a bun
 | `tsc` | Types across `src` and the config/scripts project | The IPC boundary at runtime |
 | `vitest` + axe-core | Roles, accessible names, ARIA validity, landmarks, heading order | **Colour contrast** — see below |
 | `scripts/check-contrast.ts` | Every colour pair, three Color Schemes, WCAG AA | Whether the pair is used where you think |
+| `scripts/check-theme-utilities.mjs` | That the semantic colour utilities reach the built CSS | Whether they are applied to the right element |
 | `react-compiler-healthcheck` | Components silently bailing out of compilation | Whether the memoisation helps |
 | `cargo test` | Document load/migrate/corrupt paths, redaction goldens | Real filesystem behaviour under antivirus |
 | `size-limit` | Bundle growth | — |
@@ -35,6 +36,13 @@ runner cost: the frontend job on `ubuntu-latest`, anything needing Rust or a bun
 silently no-ops and the run comes back green. Reading a passing axe run as contrast
 coverage is the specific mistake this table exists to prevent; `check-contrast.ts` is
 the only thing that verifies the palette.
+
+**Tailwind says nothing about a utility it does not recognise** — it simply emits no
+rule. Nothing in the first four rows can see that: Biome and `tsc` read a class string
+as a string, the tests render a DOM with no stylesheet attached, and `check-contrast.ts`
+reads `tokens.css` rather than the output. `check-theme-utilities.mjs` reads the built
+CSS for exactly that reason, and it exists because the whole semantic palette was once
+missing from a build that passed every other gate.
 
 ## 3. Manual passes, per release
 

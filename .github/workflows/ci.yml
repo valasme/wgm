@@ -57,8 +57,12 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # Wired but not enforcing a real number until Phase 4 of docs/PLAN.md measures
-      # the shell. Left running so the wiring cannot rot in the meantime.
+      # Tailwind emits nothing for an unknown utility and says nothing about it, so
+      # the only place a broken theme is visible is the build product.
+      - name: Theme utilities
+        run: pnpm check-theme
+
+      # Enforcing the measured shell plus 10% headroom, per .size-limit.json.
       - name: Bundle size
         run: pnpm size
 
