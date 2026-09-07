@@ -8,6 +8,11 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* No baseUrl: it is deprecated in TypeScript 6, and paths resolve relative to
+       this file without it. */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

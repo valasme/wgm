@@ -1,0 +1,249 @@
+/*
+ * wgm design tokens.
+ *
+ * This file is the single source of truth for colour. `scripts/check-contrast.ts`
+ * parses it directly and fails CI on any pair below WCAG AA, so a colour that exists
+ * only in a component is a colour nobody has verified.
+ *
+ * Values are fixed in docs/design.md §2. Three Color Schemes selected by
+ * `<html data-theme>`; eight Accents selected by `<html data-accent>`. See
+ * docs/adr/0002-three-scheme-oklch-token-architecture.md for why it is an attribute
+ * rather than a `.dark` class.
+ *
+ * The type scale, radii, spacing and font stacks are NOT here: they live in the
+ * `@theme` block in src/styles/global.css, because those are namespaces Tailwind
+ * owns and declaring them twice would mean two sources of truth for one value.
+ * Everything Tailwind has no opinion about — colour, chrome metrics, density,
+ * motion — lives here.
+ */
+
+:root {
+  /* Chrome metrics. */
+  --title-bar-height: 36px;
+  --sidebar-width-default: 220px;
+  --sidebar-width-min: 180px;
+  --sidebar-width-max: 400px;
+  --rail-width: 52px;
+  --resizer-hit-area: 10px;
+  --content-max-width: 640px;
+
+  /* Density changes spacing, never type size. Shrinking 13px text to 12px to fit
+   * more in is a legibility cost paid by the user for the developer's convenience. */
+  --row-height: 32px;
+  --section-gap: 24px;
+
+  /* Motion. Every duration here is zeroed under reduced motion, below. */
+  --motion-hover: 100ms;
+  --motion-sidebar: 150ms;
+  --motion-onboarding: 400ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-density="compact"] {
+  --row-height: 28px;
+  --section-gap: 16px;
+}
+
+/* ---------------------------------------------------------------- Light --- */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: oklch(99% 0 0);
+  --surface: oklch(96.5% 0.002 265);
+  --border: oklch(92% 0.003 265);
+  --text: oklch(20% 0.01 265);
+  --text-muted: oklch(50% 0.008 265);
+}
+
+/* ----------------------------------------------------------------- Dark --- */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: oklch(20% 0.006 265);
+  --surface: oklch(24% 0.007 265);
+  --border: oklch(30% 0.008 265);
+  --text: oklch(95% 0.002 265);
+  --text-muted: oklch(68% 0.008 265);
+}
+
+/* --------------------------------------------------------------- Darker --- */
+/*
+ * Drawn, not derived. On true black a `#1A1A1A` divider is invisible and a black
+ * panel on a black page has no edge, so --surface sits *above* the background here
+ * and --border takes a proportionally larger step. Scaling Dark's lightness down
+ * produces a scheme that looks broken.
+ */
+
+:root[data-theme="darker"] {
+  color-scheme: dark;
+
+  --bg: oklch(0% 0 0);
+  --surface: oklch(13% 0.005 265);
+  --border: oklch(22% 0.006 265);
+  --text: oklch(94% 0.002 265);
+  --text-muted: oklch(64% 0.008 265);
+}
+
+/* --------------------------------------------------------------- Accents --- */
+/*
+ * Eight fixed choices, not a picker: a freeform hue would let a user select one that
+ * fails AA and there would be no way to stop them. Each supplies --accent and
+ * --accent-foreground per scheme.
+ *
+ * Two contrast obligations, both gated:
+ *   --accent-foreground on --accent   >= 4.5 (button label, normal text)
+ *   --accent on --bg                  >= 3.0 (the focus ring is a non-text control)
+ */
+
+:root,
+:root[data-accent="blue"] {
+  --accent: oklch(51% 0.19 259);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="violet"] {
+  --accent: oklch(49% 0.24 293);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="cyan"] {
+  --accent: oklch(48% 0.11 220);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="emerald"] {
+  --accent: oklch(48% 0.13 158);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="amber"] {
+  --accent: oklch(47% 0.12 85);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="orange"] {
+  --accent: oklch(49% 0.16 47);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="rose"] {
+  --accent: oklch(50% 0.19 15);
+  --accent-foreground: oklch(99% 0 0);
+}
+:root[data-accent="neutral"] {
+  --accent: oklch(38% 0.012 265);
+  --accent-foreground: oklch(99% 0 0);
+}
+
+/*
+ * On the dark schemes the relationship inverts: a 50%-lightness accent on a
+ * 20%-lightness background does not clear 3:1 for the focus ring, so the accent
+ * rises and its foreground goes dark.
+ */
+
+:root[data-theme="dark"],
+:root[data-theme="darker"] {
+  --accent: oklch(74% 0.14 259);
+  --accent-foreground: oklch(18% 0.03 259);
+}
+:root[data-theme="dark"][data-accent="blue"],
+:root[data-theme="darker"][data-accent="blue"] {
+  --accent: oklch(74% 0.14 259);
+  --accent-foreground: oklch(18% 0.03 259);
+}
+:root[data-theme="dark"][data-accent="violet"],
+:root[data-theme="darker"][data-accent="violet"] {
+  --accent: oklch(74% 0.15 293);
+  --accent-foreground: oklch(18% 0.04 293);
+}
+:root[data-theme="dark"][data-accent="cyan"],
+:root[data-theme="darker"][data-accent="cyan"] {
+  --accent: oklch(80% 0.11 210);
+  --accent-foreground: oklch(18% 0.03 210);
+}
+:root[data-theme="dark"][data-accent="emerald"],
+:root[data-theme="darker"][data-accent="emerald"] {
+  --accent: oklch(80% 0.14 158);
+  --accent-foreground: oklch(18% 0.04 158);
+}
+:root[data-theme="dark"][data-accent="amber"],
+:root[data-theme="darker"][data-accent="amber"] {
+  --accent: oklch(83% 0.14 85);
+  --accent-foreground: oklch(20% 0.04 85);
+}
+:root[data-theme="dark"][data-accent="orange"],
+:root[data-theme="darker"][data-accent="orange"] {
+  --accent: oklch(78% 0.14 55);
+  --accent-foreground: oklch(19% 0.04 55);
+}
+:root[data-theme="dark"][data-accent="rose"],
+:root[data-theme="darker"][data-accent="rose"] {
+  --accent: oklch(76% 0.14 15);
+  --accent-foreground: oklch(19% 0.04 15);
+}
+:root[data-theme="dark"][data-accent="neutral"],
+:root[data-theme="darker"][data-accent="neutral"] {
+  --accent: oklch(80% 0.006 265);
+  --accent-foreground: oklch(18% 0.006 265);
+}
+
+/* ---------------------------------------------------------------- Motion --- */
+/*
+ * Driven by the attribute *as well as* the media query, so the in-app setting can
+ * override the OS in both directions rather than only tightening it.
+ *
+ * The `!important` declarations below are the one place in wgm where they are
+ * correct: a reduced-motion override has to beat every animation an author writes,
+ * including inline styles from Radix, or it is not an override. Biome's
+ * `noImportantStyles` rule is switched off for this file in biome.json for exactly
+ * this reason and no other.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion="off"]) {
+    --motion-hover: 0ms;
+    --motion-sidebar: 0ms;
+    --motion-onboarding: 0ms;
+  }
+}
+
+:root[data-reduce-motion="on"] {
+  --motion-hover: 0ms;
+  --motion-sidebar: 0ms;
+  --motion-onboarding: 0ms;
+}
+
+:root[data-reduce-motion="on"] *,
+:root[data-reduce-motion="on"] *::before,
+:root[data-reduce-motion="on"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion="off"]) *,
+  :root:not([data-reduce-motion="off"]) *::before,
+  :root:not([data-reduce-motion="off"]) *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------- High Contrast --- */
+/*
+ * The palette yields entirely to the system. Accents do not survive High Contrast
+ * and should not try to.
+ */
+
+@media (forced-colors: active) {
+  :root {
+    --bg: Canvas;
+    --surface: Canvas;
+    --border: CanvasText;
+    --text: CanvasText;
+    --text-muted: GrayText;
+    --accent: Highlight;
+    --accent-foreground: HighlightText;
+  }
+}

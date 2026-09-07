@@ -1,4 +1,5 @@
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
@@ -28,6 +29,12 @@ export default defineConfig(() => ({
     }),
     tailwindcss(),
   ],
+
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
 
   build: {
     // Shipped deliberately. The source is public, so a minified stack trace costs a

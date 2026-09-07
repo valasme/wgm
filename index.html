@@ -5,9 +5,79 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wgm</title>
+
+    <!--
+      Self-hosted and preloaded. The Content-Security-Policy sets `font-src 'self'`, so
+      a CDN link would fail silently; these two files are the only faces wgm ships.
+    -->
+    <link
+      rel="preload"
+      href="/fonts/geist-variable-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/instrument-serif-italic-wgm.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!--
+      Before the bundle, deliberately. Writes the Appearance attributes so the first
+      painted frame is the right colour scheme, and registers an error handler that a
+      React error boundary could never stand in for — a failure while the bundle is
+      still loading happens before React exists. A separate file rather than an inline
+      script because the CSP sets `script-src 'self'`.
+    -->
+    <script src="/boot.js"></script>
   </head>
 
   <body>
+    <!--
+      Static fallback markup. React replaces it on mount; `boot.js` reveals it if the
+      bundle throws before that happens. Without this the three-second failsafe shows
+      a permanently blank white window, which is the worst failure in the app.
+      Inline styles only: this has to render with no stylesheet at all.
+    -->
+    <div id="boot-fallback" hidden style="
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 20px;
+      text-align: center;
+      background: #fcfcfc;
+      color: #1a1a1f;
+    ">
+      <strong style="font-size: 19px; font-weight: 500">wgm didn't start</strong>
+      <p style="margin: 0; max-width: 46ch">
+        Something failed while wgm was loading. The log folder is
+        <code>%APPDATA%\io.github.valasme.wgm\logs</code>, and the message below is the
+        first thing that went wrong.
+      </p>
+      <code
+        id="boot-fallback-detail"
+        style="
+          max-width: 60ch;
+          padding: 8px 12px;
+          border: 1px solid #e6e6ea;
+          border-radius: 6px;
+          font-size: 11px;
+          user-select: text;
+          overflow-wrap: anywhere;
+        "
+      ></code>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
