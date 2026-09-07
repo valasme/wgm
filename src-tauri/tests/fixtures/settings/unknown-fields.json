@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "appearance": {
     "colorScheme": "dark",
     "accent": "blue",
@@ -8,8 +8,6 @@
     "fromANewerBuild": "tint"
   },
   "general": {
-    "launchOnStartup": false,
-    "startMinimized": false,
     "restoreWindowPosition": true,
     "confirmDestructiveActions": true
   },

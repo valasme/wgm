@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Sidebar } from "@/components/chrome/sidebar";
 import { TitleBar } from "@/components/chrome/title-bar";
 import { CommandPalette } from "@/components/command-palette";
@@ -11,7 +11,7 @@ import { t } from "@/i18n/t";
 import { commands } from "@/ipc";
 import { type NAV_SHORTCUT_TARGETS, useShortcuts } from "@/lib/shortcuts";
 import { useZoom } from "@/lib/zoom";
-import { isRail, RAIL_BREAKPOINT, useWorkspaceStore } from "@/stores/workspace-store";
+import { useIsRail, useWorkspaceStore } from "@/stores/workspace-store";
 
 export const Route = createFileRoute("/_app")({
   component: AppShell,
@@ -40,20 +40,13 @@ function AppShell() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  const collapsed = useWorkspaceStore(isRail);
+  // Below 900px the Sidebar forces to the Rail. Read during render rather than
+  // measured in an effect, so the shell never commits an expanded frame and then
+  // animates it closed. It is view state either way and is never written to Workspace
+  // State — a narrow window must not permanently collapse the Sidebar for the next
+  // launch.
+  const collapsed = useIsRail();
   const setSidebarCollapsed = useWorkspaceStore((state) => state.setSidebarCollapsed);
-  const setRailForced = useWorkspaceStore((state) => state.setRailForced);
-
-  // Below 900px the Sidebar forces to the Rail. This is view state and is deliberately
-  // never written to Workspace State — a narrow window must not permanently collapse
-  // the Sidebar for the next launch.
-  useEffect(() => {
-    const measure = () => setRailForced(window.innerWidth < RAIL_BREAKPOINT);
-
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [setRailForced]);
 
   // Ctrl +/-/0. Off by default in Tauri, and the cheapest low-vision accommodation
   // available in a window with no browser chrome to offer it.

@@ -24,6 +24,10 @@
   --sidebar-width-min: 180px;
   --sidebar-width-max: 400px;
   --rail-width: 52px;
+  /* The Rail is one padded column: 8 + 36 + 8. Every Rail item is --rail-item square,
+   * so the icons share one vertical axis with the Title Bar's sidebar toggle. */
+  --rail-padding: 8px;
+  --rail-item: 36px;
   --resizer-hit-area: 10px;
   --content-max-width: 640px;
 
@@ -31,6 +35,7 @@
    * more in is a legibility cost paid by the user for the developer's convenience. */
   --row-height: 32px;
   --section-gap: 24px;
+  --page-padding: 32px;
 
   /* Motion. Every duration here is zeroed under reduced motion, below. */
   --motion-hover: 100ms;
@@ -39,15 +44,30 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
-:root[data-density="compact"] {
+/*
+ * Density, and every block below it, is selected by the attribute *wherever it sits*
+ * rather than on `:root` alone. That is what lets a preview panel render one scheme,
+ * accent or density while the app around it is in another — the attributes cascade,
+ * and the preview is then the same tokens the real chrome uses rather than a second
+ * set of colours nobody has verified.
+ */
+
+[data-density="comfortable"] {
+  --row-height: 32px;
+  --section-gap: 24px;
+  --page-padding: 32px;
+}
+
+[data-density="compact"] {
   --row-height: 28px;
   --section-gap: 16px;
+  --page-padding: 24px;
 }
 
 /* ---------------------------------------------------------------- Light --- */
 
 :root,
-:root[data-theme="light"] {
+[data-theme="light"] {
   color-scheme: light;
 
   --bg: oklch(99% 0 0);
@@ -59,7 +79,7 @@
 
 /* ----------------------------------------------------------------- Dark --- */
 
-:root[data-theme="dark"] {
+[data-theme="dark"] {
   color-scheme: dark;
 
   --bg: oklch(20% 0.006 265);
@@ -77,7 +97,7 @@
  * produces a scheme that looks broken.
  */
 
-:root[data-theme="darker"] {
+[data-theme="darker"] {
   color-scheme: dark;
 
   --bg: oklch(0% 0 0);
@@ -99,35 +119,35 @@
  */
 
 :root,
-:root[data-accent="blue"] {
+[data-accent="blue"] {
   --accent: oklch(51% 0.19 259);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="violet"] {
+[data-accent="violet"] {
   --accent: oklch(49% 0.24 293);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="cyan"] {
+[data-accent="cyan"] {
   --accent: oklch(48% 0.11 220);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="emerald"] {
+[data-accent="emerald"] {
   --accent: oklch(48% 0.13 158);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="amber"] {
+[data-accent="amber"] {
   --accent: oklch(47% 0.12 85);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="orange"] {
+[data-accent="orange"] {
   --accent: oklch(49% 0.16 47);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="rose"] {
+[data-accent="rose"] {
   --accent: oklch(50% 0.19 15);
   --accent-foreground: oklch(99% 0 0);
 }
-:root[data-accent="neutral"] {
+[data-accent="neutral"] {
   --accent: oklch(38% 0.012 265);
   --accent-foreground: oklch(99% 0 0);
 }
@@ -138,48 +158,48 @@
  * rises and its foreground goes dark.
  */
 
-:root[data-theme="dark"],
-:root[data-theme="darker"] {
+[data-theme="dark"],
+[data-theme="darker"] {
   --accent: oklch(74% 0.14 259);
   --accent-foreground: oklch(18% 0.03 259);
 }
-:root[data-theme="dark"][data-accent="blue"],
-:root[data-theme="darker"][data-accent="blue"] {
+[data-theme="dark"][data-accent="blue"],
+[data-theme="darker"][data-accent="blue"] {
   --accent: oklch(74% 0.14 259);
   --accent-foreground: oklch(18% 0.03 259);
 }
-:root[data-theme="dark"][data-accent="violet"],
-:root[data-theme="darker"][data-accent="violet"] {
+[data-theme="dark"][data-accent="violet"],
+[data-theme="darker"][data-accent="violet"] {
   --accent: oklch(74% 0.15 293);
   --accent-foreground: oklch(18% 0.04 293);
 }
-:root[data-theme="dark"][data-accent="cyan"],
-:root[data-theme="darker"][data-accent="cyan"] {
+[data-theme="dark"][data-accent="cyan"],
+[data-theme="darker"][data-accent="cyan"] {
   --accent: oklch(80% 0.11 210);
   --accent-foreground: oklch(18% 0.03 210);
 }
-:root[data-theme="dark"][data-accent="emerald"],
-:root[data-theme="darker"][data-accent="emerald"] {
+[data-theme="dark"][data-accent="emerald"],
+[data-theme="darker"][data-accent="emerald"] {
   --accent: oklch(80% 0.14 158);
   --accent-foreground: oklch(18% 0.04 158);
 }
-:root[data-theme="dark"][data-accent="amber"],
-:root[data-theme="darker"][data-accent="amber"] {
+[data-theme="dark"][data-accent="amber"],
+[data-theme="darker"][data-accent="amber"] {
   --accent: oklch(83% 0.14 85);
   --accent-foreground: oklch(20% 0.04 85);
 }
-:root[data-theme="dark"][data-accent="orange"],
-:root[data-theme="darker"][data-accent="orange"] {
+[data-theme="dark"][data-accent="orange"],
+[data-theme="darker"][data-accent="orange"] {
   --accent: oklch(78% 0.14 55);
   --accent-foreground: oklch(19% 0.04 55);
 }
-:root[data-theme="dark"][data-accent="rose"],
-:root[data-theme="darker"][data-accent="rose"] {
+[data-theme="dark"][data-accent="rose"],
+[data-theme="darker"][data-accent="rose"] {
   --accent: oklch(76% 0.14 15);
   --accent-foreground: oklch(19% 0.04 15);
 }
-:root[data-theme="dark"][data-accent="neutral"],
-:root[data-theme="darker"][data-accent="neutral"] {
+[data-theme="dark"][data-accent="neutral"],
+[data-theme="darker"][data-accent="neutral"] {
   --accent: oklch(80% 0.006 265);
   --accent-foreground: oklch(18% 0.006 265);
 }

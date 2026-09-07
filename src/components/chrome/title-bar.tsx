@@ -2,7 +2,7 @@ import { PanelLeftCloseIcon, PanelLeftIcon } from "lucide-react";
 
 import { t } from "@/i18n/t";
 import { cn } from "@/lib/cn";
-import { isRail, useWorkspaceStore } from "@/stores/workspace-store";
+import { useIsRail, useRailForced, useWorkspaceStore } from "@/stores/workspace-store";
 
 import { WindowControls } from "./window-controls";
 import { Wordmark } from "./wordmark";
@@ -18,8 +18,8 @@ import { Wordmark } from "./wordmark";
  * focus ring, and the skip link makes it one press to bypass both.
  */
 export function TitleBar() {
-  const collapsed = useWorkspaceStore(isRail);
-  const railForced = useWorkspaceStore((state) => state.railForced);
+  const collapsed = useIsRail();
+  const railForced = useRailForced();
   const setSidebarCollapsed = useWorkspaceStore((state) => state.setSidebarCollapsed);
 
   const Icon = collapsed ? PanelLeftIcon : PanelLeftCloseIcon;
@@ -34,7 +34,12 @@ export function TitleBar() {
         "select-none",
       )}
     >
-      <div data-tauri-drag-region={false} className="flex items-center pl-1">
+      {/* Rail-wide and centred, so the toggle sits on the same vertical axis as the
+          Rail's icons directly below it. */}
+      <div
+        data-tauri-drag-region={false}
+        className="flex w-[var(--rail-width)] shrink-0 items-center justify-center"
+      >
         <button
           type="button"
           // Below 900px the Sidebar is forced to the Rail, so the toggle would be a
@@ -59,7 +64,7 @@ export function TitleBar() {
         double-click-to-maximise and drag-to-unsnap, and duplicating the last one in
         JavaScript would toggle twice.
       */}
-      <div data-tauri-drag-region className="flex flex-1 items-center pl-2">
+      <div data-tauri-drag-region className="flex flex-1 items-center">
         <Wordmark />
       </div>
 

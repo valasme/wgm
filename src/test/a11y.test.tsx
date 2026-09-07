@@ -88,9 +88,9 @@ describe("settings rows", () => {
       <main>
         <h1>Settings</h1>
         <SettingRow
-          id="general.startMinimized"
-          label="Start minimised"
-          description="Open in the taskbar instead of on screen."
+          id="general.restoreWindowPosition"
+          label="Restore window position"
+          description="Reopen at the size and place you left it."
           control={({ labelId, describedBy }) => (
             <Switch checked={false} aria-labelledby={labelId} aria-describedby={describedBy} />
           )}
@@ -98,7 +98,7 @@ describe("settings rows", () => {
       </main>,
     );
 
-    expect(screen.getByRole("switch", { name: "Start minimised" })).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "Restore window position" })).toBeInTheDocument();
     await expect(axe(container)).resolves.toHaveNoViolations();
   });
 });

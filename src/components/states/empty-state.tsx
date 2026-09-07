@@ -32,7 +32,10 @@ export function EmptyState({
 
   return (
     <div
-      className={cn("flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center")}
+      className={cn(
+        "flex flex-1 flex-col items-center justify-center gap-3 text-center",
+        "p-[calc(var(--page-padding)*1.5)]",
+      )}
     >
       {icon && <div className="text-text-muted">{icon}</div>}
 

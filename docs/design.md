@@ -118,10 +118,13 @@ shadow in the product is the one Windows draws around the window, and floating l
 
 ## 6. Selection, focus and state
 
-The active navigation item is marked **three** ways: a filled `--surface` background, a 500
-weight, and a 2px Accent bar on its leading edge. Background tint alone fails "no information
-by colour alone", and in a near-monochrome interface a tint this subtle is easy to miss even
-with full colour vision.
+The active navigation item is marked **two** ways: a filled `--surface` background and a 500
+weight. Background tint alone fails "no information by colour alone", which is what the
+weight is for; the Accent bar that used to sit on the leading edge is gone, because a third
+cue on a control that already reads as selected is decoration.
+
+Under `forced-colors: active` the fill *is* overridden, which would leave the weight alone —
+so the active item takes a `Highlight` border there, and only there.
 
 Focus ring: 2px `--accent` at 2px offset, on every focusable element, always visible on
 keyboard focus. On a near-white page this ring is the loudest thing on screen — which is

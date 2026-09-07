@@ -103,17 +103,6 @@ pub fn settings_set_log_retention_days(
 
 #[tauri::command]
 #[specta::specta]
-pub fn settings_set_start_minimized(
-    state: State<'_, AppState>,
-    value: bool,
-) -> AppResult<Settings> {
-    state
-        .settings
-        .update(|settings| settings.general.start_minimized = value)
-}
-
-#[tauri::command]
-#[specta::specta]
 pub fn settings_set_restore_window_position(
     state: State<'_, AppState>,
     value: bool,
@@ -145,36 +134,10 @@ pub fn settings_set_release_check_enabled(
         .update(|settings| settings.privacy.release_check_enabled = value)
 }
 
-/// Launch on startup. Written through the autostart plugin **and** recorded in
-/// Settings, because the registry entry is the truth and the setting is the intent —
-/// and a user who removes the entry by hand should see the switch follow.
-#[tauri::command]
-#[specta::specta]
-pub fn settings_set_launch_on_startup(
-    app: tauri::AppHandle,
-    state: State<'_, AppState>,
-    value: bool,
-) -> AppResult<Settings> {
-    use tauri_plugin_autostart::ManagerExt;
-
-    let manager = app.autolaunch();
-    let result = if value {
-        manager.enable()
-    } else {
-        manager.disable()
-    };
-
-    result.map_err(|error| {
-        AppError::new(ErrorCode::AutostartFailed)
-            .with("enabled", value)
-            .detail(error.to_string())
-            .emit()
-    })?;
-
-    state
-        .settings
-        .update(|settings| settings.general.launch_on_startup = value)
-}
+// There is deliberately no *Launch on startup* and no *Start minimised*. wgm writes no
+// registry run entry and never opens into the taskbar: a package manager is opened when
+// it is wanted, and a switch that survives only to justify a plugin is a control with
+// nothing behind it.
 
 /// Reset to defaults. The one action gated by confirm-before-destructive-actions,
 /// which is enforced in the UI — this command does what it is told.

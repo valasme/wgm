@@ -261,6 +261,35 @@ for_both_documents!(
     }
 );
 
+// --- Settings' own migration chain -----------------------------------------
+
+/// Settings-only, because Workspace State has no v1 step: the two documents version
+/// independently, which is half the point of the split.
+#[test]
+fn a_v1_settings_file_loses_the_two_startup_settings_and_keeps_everything_else() {
+    let (_dir, path, store) = open::<Settings>("schema-v1.json");
+
+    assert!(
+        matches!(store.status().outcome, LoadOutcome::Migrated { from: 1 }),
+        "{:?}",
+        store.status().outcome
+    );
+
+    let rewritten: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&path).expect("read")).expect("JSON");
+
+    assert!(rewritten["general"].get("launchOnStartup").is_none());
+    assert!(rewritten["general"].get("startMinimized").is_none());
+    // The rest of the file survives the step it was not about.
+    assert_eq!(rewritten["general"]["restoreWindowPosition"], false);
+    assert_eq!(rewritten["appearance"]["accent"], "violet");
+    assert!(
+        store.status().unknown_fields.is_empty(),
+        "a migrated file must not then be reported as carrying unknown fields: {:?}",
+        store.status().unknown_fields
+    );
+}
+
 // --- The split between the two documents -----------------------------------
 
 #[test]

@@ -19,6 +19,10 @@ export const Route = createFileRoute("/_app/settings/general")({
  * Reset to defaults** — it is the one exception to instant apply, and the only reason
  * a control this abstract earns a row at all. A language selector is deliberately
  * absent until a second catalog exists.
+ *
+ * There is no *Launch on startup* and no *Start minimised*: wgm writes no registry run
+ * entry and never opens into the taskbar. A package manager is opened when it is
+ * wanted.
  */
 function GeneralPage() {
   const headingRef = useHeadingFocus<HTMLHeadingElement>();
@@ -30,30 +34,6 @@ function GeneralPage() {
 
   return (
     <SettingSection heading={t("settings.general.title")} headingRef={headingRef}>
-      <SettingSwitch
-        id="general.launchOnStartup"
-        label={t("settings.general.launchOnStartup")}
-        description={t("settings.general.launchOnStartup.description")}
-        value={general.launchOnStartup}
-        optimistic={(settings, next) => ({
-          ...settings,
-          general: { ...settings.general, launchOnStartup: next },
-        })}
-        commit={(next) => commit(commands.settingsSetLaunchOnStartup(next))}
-      />
-
-      <SettingSwitch
-        id="general.startMinimized"
-        label={t("settings.general.startMinimized")}
-        description={t("settings.general.startMinimized.description")}
-        value={general.startMinimized}
-        optimistic={(settings, next) => ({
-          ...settings,
-          general: { ...settings.general, startMinimized: next },
-        })}
-        commit={(next) => commit(commands.settingsSetStartMinimized(next))}
-      />
-
       <SettingSwitch
         id="general.restoreWindowPosition"
         label={t("settings.general.restoreWindowPosition")}

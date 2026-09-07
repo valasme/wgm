@@ -58,7 +58,10 @@ function Onboarding() {
       <main
         id="main"
         tabIndex={-1}
-        className="flex flex-1 flex-col items-center justify-center gap-8 overflow-y-auto p-12 outline-none"
+        className={cn(
+          "flex flex-1 flex-col items-center justify-center gap-8 overflow-y-auto outline-none",
+          "p-[calc(var(--page-padding)*1.5)]",
+        )}
       >
         <Step key={step} headingRef={headingRef} />
 

@@ -431,8 +431,9 @@ lies to a screen reader that has already read the new state. No Save button, no 
 no navigation guards.
 
 - **Appearance** — Color Scheme (System/Light/Dark/Darker) · Accent · density · reduce motion
-- **General** — launch on startup · start minimised · restore window position · confirm before
-  destructive actions
+- **General** — restore window position · confirm before destructive actions
+  (*launch on startup* and *start minimised* were dropped: wgm writes no registry run entry
+  and never opens into the taskbar, and `plugin-autostart` went with them)
 - **Advanced** — log level · log retention · Open log folder · Export diagnostics ·
   Recent problems · Import settings · Export settings · Reset to defaults
 - **About** — version, commit SHA, build date, Tauri and WebView2 versions, data directory

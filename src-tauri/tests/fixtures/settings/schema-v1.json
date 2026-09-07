@@ -1,18 +1,20 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 1,
   "appearance": {
     "colorScheme": "dark",
-    "accent": "chartreuse",
-    "density": "comfortable",
+    "accent": "violet",
+    "density": "compact",
     "reduceMotion": "system"
   },
   "general": {
-    "restoreWindowPosition": true,
+    "launchOnStartup": true,
+    "startMinimized": true,
+    "restoreWindowPosition": false,
     "confirmDestructiveActions": true
   },
   "advanced": {
     "logLevel": "info",
-    "logRetentionDays": 100000
+    "logRetentionDays": 7
   },
   "privacy": {
     "releaseCheckEnabled": true

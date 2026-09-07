@@ -71,8 +71,6 @@ pub enum ErrorCode {
     // --- Platform ----------------------------------------------------------
     /// A Windows API call the UI depends on failed.
     WindowOperationFailed,
-    /// `launch on startup` could not be changed.
-    AutostartFailed,
 
     // --- Catch-all ---------------------------------------------------------
     /// Anything that did not arrive in our shape: a transport failure, a
@@ -107,7 +105,6 @@ impl ErrorCode {
         ErrorCode::ReleaseCheckTimeout,
         ErrorCode::ReleaseCheckMalformed,
         ErrorCode::WindowOperationFailed,
-        ErrorCode::AutostartFailed,
         ErrorCode::IpcUnknown,
         ErrorCode::DebugForced,
     ];
@@ -134,7 +131,6 @@ impl ErrorCode {
             ErrorCode::ReleaseCheckTimeout => "RELEASE_CHECK_TIMEOUT",
             ErrorCode::ReleaseCheckMalformed => "RELEASE_CHECK_MALFORMED",
             ErrorCode::WindowOperationFailed => "WINDOW_OPERATION_FAILED",
-            ErrorCode::AutostartFailed => "AUTOSTART_FAILED",
             ErrorCode::IpcUnknown => "IPC_UNKNOWN",
             ErrorCode::DebugForced => "DEBUG_FORCED",
         }

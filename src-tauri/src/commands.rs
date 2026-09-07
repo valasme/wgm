@@ -209,11 +209,9 @@ pub fn show_window(app: tauri::AppHandle) -> AppResult<()> {
             .emit());
     };
 
-    // **Do not focus a window that is deliberately minimised.** `start_minimized`
-    // minimises during setup; a moment later the bundle mounts and calls this on first
-    // paint, and `set_focus` restores a minimised window on Windows — which would make
-    // the setting do nothing and steal focus at every login when combined with launch
-    // on startup.
+    // **Do not focus a window that is already minimised.** `set_focus` restores a
+    // minimised window on Windows, so a user who minimised wgm while it was still
+    // loading would have it pulled back open in front of them.
     let minimized = window.is_minimized().unwrap_or(false);
 
     window

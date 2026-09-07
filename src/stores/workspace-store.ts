@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 
 import { commands, type DocumentStatus, type WorkspaceState } from "@/ipc";
@@ -23,13 +24,10 @@ export interface WorkspaceStoreState {
   workspace: WorkspaceState | null;
   status: DocumentStatus | null;
   loaded: boolean;
-  /** True while the window is too narrow for the Sidebar, regardless of the setting. */
-  railForced: boolean;
 
   load: () => Promise<void>;
   setSidebarWidth: (width: number) => void;
   setSidebarCollapsed: (collapsed: boolean) => Promise<void>;
-  setRailForced: (forced: boolean) => void;
   completeOnboarding: () => Promise<void>;
   replayOnboarding: () => Promise<void>;
 }
@@ -40,7 +38,6 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   workspace: null,
   status: null,
   loaded: false,
-  railForced: false,
 
   load: async () => {
     const [workspace, status] = await Promise.all([
@@ -82,8 +79,6 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
     }
   },
 
-  setRailForced: (railForced) => set({ railForced }),
-
   completeOnboarding: async () => {
     const result = await commands.workspaceCompleteOnboarding();
     if (result.status === "ok") {
@@ -102,7 +97,25 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   },
 }));
 
+/**
+ * Is the window too narrow for the Sidebar?
+ *
+ * Read during render rather than measured in an effect. An effect runs *after* the
+ * first frame is committed, so the shell would paint the Sidebar expanded and then
+ * animate it closed — the flash on every launch in a narrow window.
+ */
+export function useRailForced(): boolean {
+  return useSyncExternalStore(subscribeToResize, () => window.innerWidth < RAIL_BREAKPOINT);
+}
+
 /** Is the Sidebar showing as a Rail right now, for whatever reason? */
-export function isRail(state: WorkspaceStoreState): boolean {
-  return state.railForced || (state.workspace?.sidebar.collapsed ?? false);
+export function useIsRail(): boolean {
+  const collapsed = useWorkspaceStore((state) => state.workspace?.sidebar.collapsed ?? false);
+
+  return useRailForced() || collapsed;
+}
+
+function subscribeToResize(onChange: () => void): () => void {
+  window.addEventListener("resize", onChange);
+  return () => window.removeEventListener("resize", onChange);
 }

@@ -195,14 +195,6 @@ async settingsSetLogRetentionDays(value: number) : Promise<Result<Settings, AppE
     else return { status: "error", error: e  as any };
 }
 },
-async settingsSetStartMinimized(value: boolean) : Promise<Result<Settings, AppError>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("settings_set_start_minimized", { value }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
 async settingsSetRestoreWindowPosition(value: boolean) : Promise<Result<Settings, AppError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("settings_set_restore_window_position", { value }) };
@@ -222,19 +214,6 @@ async settingsSetConfirmDestructiveActions(value: boolean) : Promise<Result<Sett
 async settingsSetReleaseCheckEnabled(value: boolean) : Promise<Result<Settings, AppError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("settings_set_release_check_enabled", { value }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Launch on startup. Written through the autostart plugin **and** recorded in
- * Settings, because the registry entry is the truth and the setting is the intent —
- * and a user who removes the entry by hand should see the switch follow.
- */
-async settingsSetLaunchOnStartup(value: boolean) : Promise<Result<Settings, AppError>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("settings_set_launch_on_startup", { value }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -329,14 +308,6 @@ async workspaceSetSidebarWidth(width: number) : Promise<Result<WorkspaceState, A
 async workspaceSetSidebarCollapsed(collapsed: boolean) : Promise<Result<WorkspaceState, AppError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("workspace_set_sidebar_collapsed", { collapsed }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async workspaceSetWindowGeometry(geometry: WindowGeometry) : Promise<Result<WorkspaceState, AppError>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("workspace_set_window_geometry", { geometry }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -571,10 +542,6 @@ export type ErrorCode =
  */
 "WINDOW_OPERATION_FAILED" | 
 /**
- * `launch on startup` could not be changed.
- */
-"AUTOSTART_FAILED" | 
-/**
  * Anything that did not arrive in our shape: a transport failure, a
  * serialisation error, or a panic crossing the boundary. A raw string reaching
  * the UI would mean no translation, no correlation id and no recovery action.
@@ -584,7 +551,7 @@ export type ErrorCode =
  * Produced only by the dev-only `debug_error` command.
  */
 "DEBUG_FORCED"
-export type General = { launchOnStartup: boolean; startMinimized: boolean; restoreWindowPosition: boolean; 
+export type General = { restoreWindowPosition: boolean; 
 /**
  * The one exception to instant apply: this genuinely gates Reset to defaults,
  * which is why it is rendered at all. A control that does nothing is not shown.

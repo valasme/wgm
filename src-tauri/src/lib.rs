@@ -61,11 +61,9 @@ macro_rules! wgm_commands {
             settings::commands::settings_set_reduce_motion,
             settings::commands::settings_set_log_level,
             settings::commands::settings_set_log_retention_days,
-            settings::commands::settings_set_start_minimized,
             settings::commands::settings_set_restore_window_position,
             settings::commands::settings_set_confirm_destructive_actions,
             settings::commands::settings_set_release_check_enabled,
-            settings::commands::settings_set_launch_on_startup,
             settings::commands::settings_reset,
             settings::commands::settings_export,
             settings::commands::settings_export_preview,
@@ -75,7 +73,6 @@ macro_rules! wgm_commands {
             workspace::commands::workspace_status,
             workspace::commands::workspace_set_sidebar_width,
             workspace::commands::workspace_set_sidebar_collapsed,
-            workspace::commands::workspace_set_window_geometry,
             workspace::commands::workspace_complete_onboarding,
             workspace::commands::workspace_replay_onboarding,
         ]
@@ -122,7 +119,8 @@ pub fn run() {
     let storage_mode = format!("{:?}", state.paths.mode);
     let retention_days = settings.advanced.log_retention_days;
     let file_level = logging::FileLevel::from(settings.advanced.log_level);
-    let start_minimized = settings.general.start_minimized;
+    let restore_window_position = settings.general.restore_window_position;
+    let saved_geometry = state.workspace.get().window;
 
     let specta = specta_builder();
 
@@ -142,10 +140,6 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_autostart::init(
-            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec!["--minimized"]),
-        ))
         // tauri-plugin-http is a dependency but is deliberately **not** registered:
         // the release check runs in Rust, and the webview must not be handed an HTTP
         // client. See ADR-0003.
@@ -170,12 +164,11 @@ pub fn run() {
                 platform::install_window_hooks(&window);
                 apply_native_background(&window, settings.appearance.color_scheme);
 
-                // The window is created hidden and shown on first paint, so boot never
-                // flashes an unstyled frame. `start_minimized` skips the show entirely.
-                if start_minimized {
-                    let _ = window.minimize();
-                    let _ = window.show();
-                }
+                // Both before the window is shown: the move must not be visible, and
+                // the listener has to be up before the restore's own events fire so
+                // the document agrees with the window from the first frame.
+                workspace::window::restore(&window, saved_geometry, restore_window_position);
+                workspace::window::persist_on_change(&window);
             }
 
             Ok(())

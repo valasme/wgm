@@ -11,7 +11,7 @@ import type { MessageKey } from "@/i18n/t";
 import { t } from "@/i18n/t";
 import { cn } from "@/lib/cn";
 import { formatShortcut, SHORTCUTS } from "@/lib/shortcuts";
-import { isRail, useWorkspaceStore } from "@/stores/workspace-store";
+import { useIsRail, useWorkspaceStore } from "@/stores/workspace-store";
 import { Tooltip } from "../ui/tooltip";
 import { SidebarResizer } from "./sidebar-resizer";
 
@@ -32,6 +32,15 @@ const PRIMARY: NavItem[] = [
 const SETTINGS: NavItem = { to: "/settings", label: "nav.settings", icon: SettingsIcon };
 
 /**
+ * Every item in the Rail is a square the width of the Rail's content box, so the icons
+ * sit on one vertical axis — the same axis the Title Bar's sidebar toggle sits on.
+ * Expanded, the row height follows density like every other row in the app.
+ */
+const ITEM = "flex shrink-0 items-center rounded-sm text-sm transition-colors duration-100";
+const ITEM_RAIL = "size-[var(--rail-item)] justify-center";
+const ITEM_WIDE = "h-[var(--row-height)] w-full gap-2 px-2";
+
+/**
  * The Sidebar, and its collapsed form the Rail.
  *
  * **One component in two states, not two components.** The Rail is 52px and icon-only;
@@ -40,7 +49,7 @@ const SETTINGS: NavItem = { to: "/settings", label: "nav.settings", icon: Settin
  * narrow window must not permanently collapse the Sidebar.
  */
 export function Sidebar({ onOpenPalette }: { onOpenPalette: () => void }) {
-  const collapsed = useWorkspaceStore(isRail);
+  const collapsed = useIsRail();
   const width = useWorkspaceStore((state) => state.workspace?.sidebar.width ?? 220);
   const setSidebarWidth = useWorkspaceStore((state) => state.setSidebarWidth);
 
@@ -50,23 +59,23 @@ export function Sidebar({ onOpenPalette }: { onOpenPalette: () => void }) {
         aria-label={t("chrome.sidebarNav")}
         style={collapsed ? undefined : { width }}
         className={cn(
-          "flex flex-col gap-1 overflow-hidden bg-bg p-2",
+          "flex flex-col gap-1 overflow-hidden bg-bg p-[var(--rail-padding)]",
           "transition-[width] duration-[var(--motion-sidebar)] ease-standard",
           collapsed && "w-[var(--rail-width)]",
         )}
       >
-        <SearchPill collapsed={collapsed} onClick={onOpenPalette} />
+        <SearchItem collapsed={collapsed} onClick={onOpenPalette} />
 
         <ul className="flex flex-col gap-0.5">
           {PRIMARY.map((item) => (
-            <li key={item.to}>
+            <li key={item.to} className="flex">
               <NavLink item={item} collapsed={collapsed} />
             </li>
           ))}
         </ul>
 
         <ul className="mt-auto flex flex-col gap-0.5">
-          <li>
+          <li className="flex">
             <NavLink item={SETTINGS} collapsed={collapsed} />
           </li>
         </ul>
@@ -81,8 +90,14 @@ export function Sidebar({ onOpenPalette }: { onOpenPalette: () => void }) {
   );
 }
 
-/** The Command Palette trigger: a magnifier, the word Search, and the shortcut hint. */
-function SearchPill({ collapsed, onClick }: { collapsed: boolean; onClick: () => void }) {
+/**
+ * The Command Palette trigger.
+ *
+ * Expanded it is a search field's twin — a border, the word Search and the shortcut.
+ * In the Rail it is one more icon on the same axis as the rest: a bordered box among
+ * borderless ones was the thing that made the Rail look assembled from two kits.
+ */
+function SearchItem({ collapsed, onClick }: { collapsed: boolean; onClick: () => void }) {
   const label = t("palette.open");
 
   const button = (
@@ -91,10 +106,14 @@ function SearchPill({ collapsed, onClick }: { collapsed: boolean; onClick: () =>
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "mb-2 flex h-8 items-center gap-2 rounded-sm border border-border bg-surface",
-        "text-sm text-text-muted transition-colors duration-100",
-        "hover:border-text-muted hover:text-text",
-        collapsed ? "justify-center px-0" : "px-2",
+        ITEM,
+        "mb-1 text-text-muted",
+        collapsed
+          ? [ITEM_RAIL, "hover:bg-surface hover:text-text"]
+          : [
+              ITEM_WIDE,
+              "border border-border bg-surface hover:border-text-muted hover:text-text",
+            ],
       )}
     >
       <SearchIcon className="size-4 shrink-0" aria-hidden="true" />
@@ -132,19 +151,16 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
       aria-label={collapsed ? label : undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex h-8 items-center gap-2 rounded-sm text-sm",
-        "transition-colors duration-100",
-        collapsed ? "justify-center px-0" : "px-2",
-        // Three cues, never one: a filled surface, a 500 weight, and a 2px Accent bar
-        // on the leading edge. A tint this subtle is missable with full colour vision,
-        // and under forced-colors the background is overridden entirely — which is why
-        // the bar is a border rather than a background.
+        ITEM,
+        collapsed ? ITEM_RAIL : ITEM_WIDE,
+        // Two cues, not one: a filled surface and a 500 weight. There is no Accent bar
+        // on the leading edge — it was decoration on a control that already reads as
+        // selected. Under forced-colors the surface *is* overridden, so a border comes
+        // back there and only there, because that mode has no other cue left.
         active
           ? [
               "bg-surface font-medium text-text",
-              "before:absolute before:inset-y-1 before:left-0 before:w-0.5",
-              "before:rounded-full before:bg-accent",
-              "forced-colors:before:bg-[Highlight]",
+              "forced-colors:border forced-colors:border-[Highlight]",
             ]
           : "text-text-muted hover:bg-surface hover:text-text",
       )}

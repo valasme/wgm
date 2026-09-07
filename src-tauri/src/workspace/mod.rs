@@ -2,8 +2,10 @@
 
 pub mod commands;
 pub mod defaults;
+pub mod geometry;
 pub mod migrations;
 pub mod schema;
+pub mod window;
 
 use serde_json::{Map, Value};
 

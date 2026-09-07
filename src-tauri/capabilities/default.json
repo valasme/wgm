@@ -34,8 +34,6 @@
 
     "process:allow-restart",
 
-    "autostart:default",
-
     "log:default"
   ]
 }

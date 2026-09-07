@@ -157,7 +157,10 @@ function selectorApplies(selector: string, scheme: Scheme, accent: Accent): bool
       }
       const attributes = [...part.matchAll(/\[data-(theme|accent)="([a-z]+)"\]/g)];
       const stripped = part.replace(/\[data-(theme|accent)="[a-z]+"\]/g, "").trim();
-      if (stripped !== ":root") {
+      // `[data-theme="dark"]` with no `:root` in front is the same rule applied to any
+      // element carrying the attribute — which is what lets a preview panel render a
+      // scheme the app is not in. It still applies to `<html>`, so the gate is unchanged.
+      if (stripped !== ":root" && stripped !== "") {
         throw new Error(`check-contrast does not understand the selector: ${part}`);
       }
       return attributes.every(([, kind, value]) =>

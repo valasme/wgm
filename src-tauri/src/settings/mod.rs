@@ -285,7 +285,7 @@ mod tests {
         let current = Settings::default();
         let mut incoming = Settings::default();
         incoming.appearance.color_scheme = ColorSchemePreference::Darker;
-        incoming.general.start_minimized = true;
+        incoming.general.restore_window_position = false;
 
         let changes = diff(&current, &incoming);
 
@@ -295,7 +295,7 @@ mod tests {
             .any(|change| change.path == "appearance.colorScheme"));
         assert!(changes
             .iter()
-            .any(|change| change.path == "general.startMinimized"));
+            .any(|change| change.path == "general.restoreWindowPosition"));
     }
 
     #[test]

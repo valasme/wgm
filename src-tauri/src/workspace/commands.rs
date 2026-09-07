@@ -8,7 +8,7 @@ use tauri::State;
 use crate::document::DocumentStatus;
 use crate::error::AppResult;
 use crate::state::AppState;
-use crate::workspace::schema::{WindowGeometry, WorkspaceState, SIDEBAR_WIDTH_RANGE};
+use crate::workspace::schema::{WorkspaceState, SIDEBAR_WIDTH_RANGE};
 
 #[tauri::command]
 #[specta::specta]
@@ -57,16 +57,9 @@ pub fn workspace_set_sidebar_collapsed(
         .update(|workspace| workspace.sidebar.collapsed = collapsed)
 }
 
-#[tauri::command]
-#[specta::specta]
-pub fn workspace_set_window_geometry(
-    state: State<'_, AppState>,
-    geometry: WindowGeometry,
-) -> AppResult<WorkspaceState> {
-    state
-        .workspace
-        .update(|workspace| workspace.window = geometry)
-}
+// There is deliberately no `workspace_set_window_geometry`. Window geometry is read
+// from the window and written by Rust — see `workspace::window` — so the webview has
+// nothing to say about it, and a command it never calls is a control that can rot.
 
 /// Record that setup finished, against the version that ran it.
 ///

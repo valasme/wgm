@@ -65,7 +65,6 @@ describe("the catalog", () => {
       "RELEASE_CHECK_TIMEOUT",
       "RELEASE_CHECK_MALFORMED",
       "WINDOW_OPERATION_FAILED",
-      "AUTOSTART_FAILED",
       "IPC_UNKNOWN",
       "DEBUG_FORCED",
     ];

@@ -79,14 +79,16 @@ nothing visually since the rendered line stays 1px.
 Verified in CI by `scripts/check-contrast.ts`: eight Accent pairs plus the neutral text ramp,
 across all three Color Schemes, at WCAG AA.
 
-**Nothing is signalled by colour alone.** The active navigation item carries three cues — a
-`--surface` fill, 500 weight, and a leading Accent bar. In an interface this quiet, a tint
-this subtle is missable with full colour vision, let alone without it.
+**Nothing is signalled by colour alone.** The active navigation item carries two cues — a
+`--surface` fill and 500 weight — and `aria-current="page"`. The weight is the one that does
+the work: in an interface this quiet, a tint this subtle is missable with full colour vision,
+let alone without it.
 
 Under `forced-colors: active` the palette yields entirely to the system. Two consequences to
-build for: the active-nav indicator must be a `border`/`outline` rather than a `background`,
-because backgrounds are overridden and borders are re-coloured; and the Window Control
-glyphs must be drawn with `currentColor`, not a hardcoded fill, or they disappear.
+build for: the active-nav indicator must gain a `border`/`outline` there, because backgrounds
+are overridden and borders are re-coloured — this is the one mode where the fill cannot be
+relied on; and the Window Control glyphs must be drawn with `currentColor`, not a hardcoded
+fill, or they disappear.
 
 ## 7. Targets and zoom
 

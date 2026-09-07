@@ -16,6 +16,7 @@ use serde_json::{Map, Value};
 pub fn step(value: &mut Map<String, Value>, version: u32) -> Result<(), String> {
     match version {
         0 => v0_to_v1(value),
+        1 => v1_to_v2(value),
         other => Err(format!("no migration is defined from version {other}")),
     }
 }
@@ -41,6 +42,23 @@ fn v0_to_v1(value: &mut Map<String, Value>) -> Result<(), String> {
     }
 
     value.insert("schemaVersion".to_owned(), Value::from(1));
+
+    Ok(())
+}
+
+/// Version 2 drops `general.launchOnStartup` and `general.startMinimized`.
+///
+/// Both were removed rather than defaulted: wgm no longer writes a registry run entry
+/// or opens minimised, so the fields describe behaviour that does not exist. Dropping
+/// them here rather than leaving them in the file is what keeps them out of the
+/// document module's unknown-field report on every subsequent load.
+fn v1_to_v2(value: &mut Map<String, Value>) -> Result<(), String> {
+    if let Some(Value::Object(general)) = value.get_mut("general") {
+        general.remove("launchOnStartup");
+        general.remove("startMinimized");
+    }
+
+    value.insert("schemaVersion".to_owned(), Value::from(2));
 
     Ok(())
 }
@@ -79,6 +97,21 @@ mod tests {
     fn an_unknown_step_is_an_error_rather_than_a_silent_success() {
         let mut value = object("{}");
         assert!(step(&mut value, 99).is_err());
+    }
+
+    #[test]
+    fn v1_drops_the_two_startup_settings_and_keeps_the_rest() {
+        let mut value = object(
+            r#"{"schemaVersion":1,"general":{"launchOnStartup":true,"startMinimized":true,"restoreWindowPosition":false}}"#,
+        );
+
+        step(&mut value, 1).expect("the v1 step must succeed");
+
+        assert_eq!(value["schemaVersion"], Value::from(2));
+        let general = value["general"].as_object().expect("general is an object");
+        assert!(!general.contains_key("launchOnStartup"));
+        assert!(!general.contains_key("startMinimized"));
+        assert_eq!(general["restoreWindowPosition"], Value::from(false));
     }
 
     #[test]

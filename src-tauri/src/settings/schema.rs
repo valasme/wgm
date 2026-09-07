@@ -14,7 +14,7 @@ use specta::Type;
 
 /// The schema version this build writes. Bumping it requires a migration step in
 /// `migrations.rs` and a fixture in `tests/fixtures/settings/`.
-pub const CURRENT_VERSION: u32 = 1;
+pub const CURRENT_VERSION: u32 = 2;
 
 /// Which of Light, Dark or Darker is in effect.
 ///
@@ -127,8 +127,6 @@ pub struct Appearance {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase", default)]
 pub struct General {
-    pub launch_on_startup: bool,
-    pub start_minimized: bool,
     pub restore_window_position: bool,
     /// The one exception to instant apply: this genuinely gates Reset to defaults,
     /// which is why it is rendered at all. A control that does nothing is not shown.
@@ -138,8 +136,6 @@ pub struct General {
 impl Default for General {
     fn default() -> Self {
         General {
-            launch_on_startup: false,
-            start_minimized: false,
             restore_window_position: true,
             confirm_destructive_actions: true,
         }

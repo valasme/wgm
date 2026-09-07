@@ -126,10 +126,6 @@ export const en = {
   "settings.appearance.reduceMotion.off": "Off",
 
   "settings.general.title": "General",
-  "settings.general.launchOnStartup": "Launch on startup",
-  "settings.general.launchOnStartup.description": "Start wgm when you sign in to Windows.",
-  "settings.general.startMinimized": "Start minimised",
-  "settings.general.startMinimized.description": "Open in the taskbar instead of on screen.",
   "settings.general.restoreWindowPosition": "Restore window position",
   "settings.general.restoreWindowPosition.description":
     "Reopen at the size and place you left it.",
@@ -321,7 +317,6 @@ export const en = {
   "errors.RELEASE_CHECK_TIMEOUT": "GitHub took too long to answer.",
   "errors.RELEASE_CHECK_MALFORMED": "GitHub sent something wgm didn't understand.",
   "errors.WINDOW_OPERATION_FAILED": "Windows refused that.",
-  "errors.AUTOSTART_FAILED": "wgm couldn't change whether it starts with Windows.",
   "errors.IPC_UNKNOWN": "Something went wrong inside wgm.",
   "errors.DEBUG_FORCED": "This error was triggered on purpose.",
 

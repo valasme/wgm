@@ -33,10 +33,13 @@ function SettingsLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   return (
-    <div className="flex flex-1 flex-col px-8 pb-12 pt-8">
+    <div className="flex flex-1 flex-col p-[var(--page-padding)]">
       <h1 className="mb-4 text-lg font-medium text-text">{t("settings.title")}</h1>
 
-      <nav aria-label={t("settings.title")} className="mb-6 flex gap-1 border-b border-border">
+      <nav
+        aria-label={t("settings.title")}
+        className="mb-[var(--section-gap)] flex gap-1 border-b border-border"
+      >
         {PAGES.map((page) => {
           const active = pathname.startsWith(page.to);
 
