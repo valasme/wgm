@@ -43,7 +43,7 @@ jobs:
       # A pull request rather than a direct push: the file is part of what wgm
       # distributes, and a licence list that changed without anyone looking is exactly
       # the kind of thing that should be looked at.
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "docs: regenerate THIRD-PARTY-LICENSES.md"
           title: "docs: regenerate THIRD-PARTY-LICENSES.md"
