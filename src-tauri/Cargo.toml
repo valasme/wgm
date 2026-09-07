@@ -1,9 +1,12 @@
 [package]
 name = "wgm"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "An opinionated winget package manager for developers"
+authors = ["Dimitris Valasellis"]
+license = "MIT"
+repository = "https://github.com/valasme/wgm"
 edition = "2021"
+rust-version = "1.77"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,11 +26,19 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
+[features]
+default = []
+# Dev builds only — never enabled in a release artifact.
+devtools = ["tauri/devtools"]
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
 [profile.release]
 codegen-units = 1
 lto = true
 opt-level = 3
-panic = "abort"
-strip = true
+# A panicking command must not kill the whole app.
+panic = "unwind"
+# Line tables only — produces a .pdb so release backtraces can be symbolised.
+debug = 1
+# Keep the symbol table in the exe; the .pdb ships separately as a release asset.
+strip = "debuginfo"
