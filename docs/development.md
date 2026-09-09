@@ -161,4 +161,15 @@ merging that PR tags, builds and publishes the NSIS installer, the portable zip,
 `release-please-config.json`'s `extra-files` keeps them in step — without it the About
 page confidently displays the wrong one.
 
+`src-tauri/Cargo.lock` is the awkward one. It has no `x-release-please-version`
+annotation to hang a `generic` updater on, because cargo rewrites the file whole and
+drops any comment it did not write, so it is updated as `toml` by JSONPath instead.
+The filter reads `@.name.value`, not `@.name`: release-please parses TOML with a
+tagging parser that replaces every scalar with a `{start, end, value}` object, and a
+filter comparing `@.name` against a string matches nothing — silently, leaving the
+lockfile a version behind with only a warning in the action log. `cargo` then repairs
+the stale lockfile mid-build without complaint, so nothing downstream notices either.
+That is why CI's Rust job passes `--locked`: it is the one step that turns this
+particular silence into a failure.
+
 Before merging a release PR, run every manual pass above.
