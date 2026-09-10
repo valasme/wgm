@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/valasme/wgm/compare/v0.2.2...v0.2.3) (2026-09-10)
+
+
+### Documentation
+
+* regenerate THIRD-PARTY-LICENSES.md ([#19](https://github.com/valasme/wgm/issues/19)) ([3c1dcc5](https://github.com/valasme/wgm/commit/3c1dcc5197a50080eb7357c98156ce5cff2f9218))
+
 ## [0.2.2](https://github.com/valasme/wgm/compare/v0.2.1...v0.2.2) (2026-09-10)
 
 
