@@ -1,6 +1,6 @@
 [package]
 name = "wgm"
-version = "0.2.1"
+version = "0.2.2"
 description = "An opinionated winget package manager for developers"
 authors = ["Dimitris Valasellis"]
 license = "MIT"

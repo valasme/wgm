@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.2](https://github.com/valasme/wgm/compare/v0.2.1...v0.2.2) (2026-09-10)
+
+
+### Fixes
+
+* **release:** keep Cargo.lock's version in step with Cargo.toml ([#17](https://github.com/valasme/wgm/issues/17)) ([d764b37](https://github.com/valasme/wgm/commit/d764b37ba1922260acace03eb6736db5a0b26545))
+
+
+### Documentation
+
+* regenerate THIRD-PARTY-LICENSES.md ([#16](https://github.com/valasme/wgm/issues/16)) ([61749d8](https://github.com/valasme/wgm/commit/61749d8190030c66674c3e29df87d7f43e71c97c))
+
 ## [0.2.1](https://github.com/valasme/wgm/compare/v0.2.0...v0.2.1) (2026-09-07)
 
 
