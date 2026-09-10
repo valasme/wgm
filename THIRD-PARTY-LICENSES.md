@@ -7,7 +7,7 @@ everything it ships.
 `node scripts/generate-third-party-licenses.mjs`, or let
 `.github/workflows/licenses.yml` open a pull request when the dependencies change.
 
-Generated 2026-09-09.
+Generated 2026-09-10.
 
 ---
 
@@ -495,7 +495,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 - `webview2-com` 0.38.2
 - `webview2-com-macros` 0.8.1
 - `webview2-com-sys` 0.38.2
-- `wgm` 0.2.1
+- `wgm` 0.2.2
 - `winapi-util` 0.1.11
 - `window-vibrancy` 0.6.0
 - `windows` 0.61.3
