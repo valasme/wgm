@@ -84,11 +84,15 @@ jobs:
       - name: Format
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
+      # `--locked` is the drift guard. Cargo silently repairs a stale lockfile mid-build,
+      # so nothing else in this pipeline notices when the version release-please writes
+      # into Cargo.toml never reaches Cargo.lock. With it, cargo refuses instead, and the
+      # push-to-main run right after a release merge is what fails.
       - name: Clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets -- -D warnings
 
       - name: Test
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
 
   build:
     name: Build (windows)
